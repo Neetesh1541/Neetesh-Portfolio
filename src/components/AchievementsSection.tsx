@@ -43,9 +43,9 @@ const achievements = [
 
 const stats = [
   { value: '5+', label: 'Projects Shipped' },
-  { value: '500+', label: 'Community Members' },
-  { value: '10+', label: 'Events Organized' },
-  { value: '3+', label: 'Years Experience' },
+  { value: '2500+', label: 'Community Members' },
+  { value: '15+', label: 'Events Organized' },
+  { value: '2+', label: 'Years Experience' },
 ];
 
 const AchievementsSection = () => {

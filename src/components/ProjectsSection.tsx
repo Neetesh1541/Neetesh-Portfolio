@@ -2,6 +2,11 @@ import { motion } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { ExternalLink, Github, Sparkles } from 'lucide-react';
+import projectPromptGenerator from '@/assets/project-prompt-generator.jpg';
+import projectChess from '@/assets/project-chess.jpg';
+import projectMummyMeals from '@/assets/project-mummy-meals.jpg';
+import projectInterview from '@/assets/project-interview.jpg';
+import projectHackloop from '@/assets/project-hackloop.jpg';
 
 const projects = [
   {
@@ -9,40 +14,35 @@ const projects = [
     description: 'AI-powered tool that generates optimized prompts for various AI models, helping users get better results from their AI interactions.',
     techStack: ['React', 'TypeScript', 'AI/ML', 'Tailwind CSS'],
     liveUrl: 'https://prompt-perfect-pro.vercel.app/',
-    gradient: 'from-cyan-500 to-blue-600',
-    icon: '✨',
+    image: projectPromptGenerator,
   },
   {
     title: 'Chess Game',
     description: 'Interactive chess game with AI opponent, move validation, and a sleek modern interface for an engaging gaming experience.',
     techStack: ['React', 'TypeScript', 'Game Logic', 'CSS'],
     liveUrl: 'https://chess-game-iota-eight.vercel.app/',
-    gradient: 'from-amber-500 to-orange-600',
-    icon: '♟️',
+    image: projectChess,
   },
   {
     title: 'Mummy Meals',
     description: 'Food ordering platform connecting home chefs with customers, featuring 5th position in Startup Hackathon.',
     techStack: ['React', 'Node.js', 'Database', 'Payment Integration'],
     liveUrl: 'https://mummy-meals-connect.vercel.app/',
-    gradient: 'from-green-500 to-emerald-600',
-    icon: '🍱',
+    image: projectMummyMeals,
   },
   {
     title: 'Interview Prep Helper',
     description: 'Comprehensive interview preparation platform with curated questions, tips, and practice resources for tech interviews.',
     techStack: ['React', 'AI Integration', 'Tailwind', 'Content Management'],
     liveUrl: 'https://neeteshinterview.vercel.app/',
-    gradient: 'from-violet-500 to-purple-600',
-    icon: '💼',
+    image: projectInterview,
   },
   {
     title: 'HackLoop Website',
     description: 'Official website for HackLoop Community - a platform for developers to learn, collaborate, and build amazing projects together.',
     techStack: ['React', 'Next.js', 'Community Features', 'Events'],
     liveUrl: 'https://www.hackloop.xyz',
-    gradient: 'from-pink-500 to-rose-600',
-    icon: '🚀',
+    image: projectHackloop,
   },
 ];
 
@@ -78,14 +78,14 @@ const ProjectsSection = () => {
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: index * 0.1 }}
             >
-              {/* Project Header with Gradient */}
-              <div className={`h-48 bg-gradient-to-br ${project.gradient} relative overflow-hidden`}>
-                <div className="absolute inset-0 bg-black/20" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-6xl transform group-hover:scale-110 transition-transform duration-500">
-                    {project.icon}
-                  </span>
-                </div>
+            {/* Project Header with Image */}
+              <div className="h-48 relative overflow-hidden">
+                <img
+                  src={project.image}
+                  alt={project.title}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
                 {/* Animated lines */}
                 <div className="absolute inset-0 opacity-30">
                   <div className="absolute top-0 left-0 w-full h-px bg-white/50 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
