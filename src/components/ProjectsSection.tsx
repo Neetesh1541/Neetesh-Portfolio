@@ -7,6 +7,7 @@ import projectChess from '@/assets/project-chess.jpg';
 import projectMummyMeals from '@/assets/project-mummy-meals.jpg';
 import projectInterview from '@/assets/project-interview.jpg';
 import projectHackloop from '@/assets/project-hackloop.jpg';
+import projectSnakeGame from '@/assets/project-snake-game.jpg';
 
 const projects = [
   {
@@ -38,11 +39,18 @@ const projects = [
     image: projectInterview,
   },
   {
-    title: 'HackLoop Website',
+    title: 'HackLoop Moments',
     description: 'Official website for HackLoop Community - a platform for developers to learn, collaborate, and build amazing projects together.',
     techStack: ['React', 'Next.js', 'Community Features', 'Events'],
-    liveUrl: 'https://www.hackloop.xyz',
+    liveUrl: 'https://hackloop-moments.vercel.app/',
     image: projectHackloop,
+  },
+  {
+    title: 'Snake Game',
+    description: 'Classic arcade snake game with modern neon aesthetics, smooth animations, and responsive controls for an addictive gaming experience.',
+    techStack: ['React', 'TypeScript', 'Canvas', 'Game Logic'],
+    liveUrl: 'https://snake-game-2-o.vercel.app/',
+    image: projectSnakeGame,
   },
 ];
 
