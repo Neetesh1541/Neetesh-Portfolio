@@ -133,15 +133,17 @@ const ContactSection = () => {
             </div>
 
             {/* Resume Download */}
-            <motion.button
+            <motion.a
+              href="/Neetesh_Kumar_Resume.pdf"
+              download="Neetesh_Kumar_Resume.pdf"
               className="btn-glass w-full flex items-center justify-center gap-2"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => toast.info('Resume download will be available soon!')}
+              onClick={() => toast.success('Resume download started!')}
             >
               <Download size={20} />
               Download Resume
-            </motion.button>
+            </motion.a>
           </motion.div>
 
           {/* Contact Form */}
