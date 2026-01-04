@@ -18,30 +18,38 @@ import {
   Bar,
   Cell,
 } from 'recharts';
+import skillFrontend from '@/assets/skill-frontend.jpg';
+import skillBackend from '@/assets/skill-backend.jpg';
+import skillAi from '@/assets/skill-ai.jpg';
+import skillTools from '@/assets/skill-tools.jpg';
 
 const skillCategories = [
   {
     title: 'Frontend',
     icon: Code2,
     color: 'from-cyan-400 to-blue-500',
+    image: skillFrontend,
     skills: ['HTML', 'CSS', 'JavaScript', 'React', 'TypeScript', 'Tailwind CSS'],
   },
   {
     title: 'Backend',
     icon: Database,
     color: 'from-green-400 to-emerald-500',
+    image: skillBackend,
     skills: ['Python', 'Flask', 'Django', 'Node.js', 'REST APIs', 'Databases'],
   },
   {
     title: 'AI/ML',
     icon: Cpu,
     color: 'from-violet-400 to-purple-500',
+    image: skillAi,
     skills: ['NLP', 'Computer Vision', 'Deep Learning', 'TensorFlow', 'OpenCV', 'ML Models'],
   },
   {
     title: 'Tools & More',
     icon: Wrench,
     color: 'from-orange-400 to-red-500',
+    image: skillTools,
     skills: ['Git', 'GitHub', 'Figma', 'Docker', 'Deployment', 'UI/UX Design'],
   },
 ];
@@ -126,42 +134,49 @@ const SkillsSection = () => {
           {skillCategories.map((category, categoryIndex) => (
             <motion.div
               key={category.title}
-              className="glass-card-hover rounded-2xl p-6 group relative overflow-hidden"
+              className="glass-card-hover rounded-2xl overflow-hidden group relative"
               initial={{ opacity: 0, y: 50, rotateX: -15 }}
               animate={isInView ? { opacity: 1, y: 0, rotateX: 0 } : {}}
               transition={{ duration: 0.6, delay: categoryIndex * 0.1 }}
               whileHover={{ y: -8, scale: 1.02 }}
             >
-              {/* Animated gradient background */}
-              <motion.div
-                className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}
-              />
+              {/* Image Header */}
+              <div className="relative h-32 overflow-hidden">
+                <img 
+                  src={category.image} 
+                  alt={category.title}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className={`absolute inset-0 bg-gradient-to-t ${category.color} opacity-60`} />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+                
+                {/* Icon overlay */}
+                <motion.div
+                  className="absolute top-4 left-4 w-12 h-12 rounded-xl glass-card flex items-center justify-center"
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  <category.icon className="w-6 h-6 text-foreground" />
+                </motion.div>
+              </div>
               
-              {/* Icon with glow */}
-              <motion.div
-                className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-r ${category.color} mb-6 relative`}
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.6 }}
-              >
-                <category.icon className="w-7 h-7 text-white" />
-                <div className={`absolute inset-0 rounded-xl bg-gradient-to-r ${category.color} blur-xl opacity-50`} />
-              </motion.div>
-              
-              <h3 className="font-display font-bold text-lg text-foreground mb-4">{category.title}</h3>
-              
-              <div className="flex flex-wrap gap-2">
-                {category.skills.map((skill, skillIndex) => (
-                  <motion.span
-                    key={skill}
-                    className="px-3 py-1.5 rounded-full text-sm bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-primary/20 hover:text-primary transition-all cursor-default"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                    transition={{ duration: 0.3, delay: categoryIndex * 0.1 + skillIndex * 0.05 + 0.3 }}
-                    whileHover={{ scale: 1.1, y: -2 }}
-                  >
-                    {skill}
-                  </motion.span>
-                ))}
+              <div className="p-5">
+                <h3 className="font-display font-bold text-lg text-foreground mb-4">{category.title}</h3>
+                
+                <div className="flex flex-wrap gap-2">
+                  {category.skills.map((skill, skillIndex) => (
+                    <motion.span
+                      key={skill}
+                      className="px-3 py-1.5 rounded-full text-xs bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-primary/20 hover:text-primary transition-all cursor-default"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={isInView ? { opacity: 1, scale: 1 } : {}}
+                      transition={{ duration: 0.3, delay: categoryIndex * 0.1 + skillIndex * 0.05 + 0.3 }}
+                      whileHover={{ scale: 1.1, y: -2 }}
+                    >
+                      {skill}
+                    </motion.span>
+                  ))}
+                </div>
               </div>
             </motion.div>
           ))}
