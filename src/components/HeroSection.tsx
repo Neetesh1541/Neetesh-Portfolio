@@ -251,43 +251,17 @@ const HeroSection = () => {
                 />
               </div>
 
-              {/* Floating Elements */}
+              {/* Stats badge */}
               <motion.div
-                className="absolute -top-4 -right-4 w-20 h-20 glass-card rounded-2xl flex items-center justify-center z-10"
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1, y: [0, -10, 0] }}
-                transition={{ 
-                  opacity: { delay: 1 },
-                  scale: { delay: 1 },
-                  y: { duration: 3, repeat: Infinity, delay: 1 }
-                }}
+                className="absolute -bottom-2 right-0 glass-card rounded-xl px-4 py-2 z-10"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 1.5 }}
               >
-                <motion.span 
-                  className="text-3xl"
-                  animate={{ rotate: [0, 10, -10, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  🚀
-                </motion.span>
-              </motion.div>
-
-              <motion.div
-                className="absolute -bottom-4 -left-4 w-16 h-16 glass-card rounded-2xl flex items-center justify-center z-10"
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1, y: [0, 8, 0] }}
-                transition={{ 
-                  opacity: { delay: 1.2 },
-                  scale: { delay: 1.2 },
-                  y: { duration: 2.5, repeat: Infinity, delay: 1.2 }
-                }}
-              >
-                <motion.span 
-                  className="text-2xl"
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  💡
-                </motion.span>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-xs text-muted-foreground">Available for hire</span>
+                </div>
               </motion.div>
 
               {/* Stats badge */}

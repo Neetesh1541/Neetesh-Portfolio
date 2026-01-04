@@ -143,10 +143,16 @@ const ArticleView = ({ article, onClose }: ArticleViewProps) => {
           transition={{ delay: 0.6 }}
         >
           <div className="flex items-start gap-4">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-2xl font-bold text-primary-foreground">
-              NK
-            </div>
-            <div>
+            <motion.div 
+              className="relative w-16 h-16 rounded-full overflow-hidden"
+              whileHover={{ scale: 1.05 }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-primary via-secondary to-primary animate-gradient" style={{ backgroundSize: '200% 200%' }} />
+              <div className="absolute inset-[2px] rounded-full bg-background flex items-center justify-center">
+                <span className="text-xl font-bold gradient-text">NK</span>
+              </div>
+            </motion.div>
+            <div className="flex-1">
               <h3 className="text-lg font-bold text-foreground">Neetesh Kumar</h3>
               <p className="text-muted-foreground text-sm mb-3">
                 Full Stack Developer | AI/ML Enthusiast | Founder of HackLoop Community
@@ -156,6 +162,24 @@ const ArticleView = ({ article, onClose }: ArticleViewProps) => {
               </p>
             </div>
           </div>
+        </motion.div>
+
+        {/* Back to Profile Button */}
+        <motion.div
+          className="mt-8 text-center"
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.7 }}
+        >
+          <motion.button
+            onClick={onClose}
+            className="btn-primary-glow inline-flex items-center gap-2"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <ArrowLeft size={18} />
+            Back to Profile
+          </motion.button>
         </motion.div>
       </article>
     </motion.div>
