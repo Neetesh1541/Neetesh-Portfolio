@@ -4,36 +4,26 @@ import { ArrowDown, Github, Linkedin, Mail, Sparkles, Zap, Code2, Brain } from '
 import profilePhoto from '@/assets/profile-photo.jpg';
 
 const floatingIcons = [
-  { icon: Code2, delay: 0, x: -120, y: -80 },
-  { icon: Brain, delay: 0.5, x: 120, y: -60 },
-  { icon: Zap, delay: 1, x: -100, y: 80 },
-  { icon: Sparkles, delay: 1.5, x: 110, y: 60 },
+  { icon: Code2, delay: 0, x: -80, y: -60 },
+  { icon: Brain, delay: 0.5, x: 80, y: -50 },
+  { icon: Zap, delay: 1, x: -70, y: 60 },
+  { icon: Sparkles, delay: 1.5, x: 75, y: 50 },
 ];
 
 const HeroSection = () => {
   return (
-    <section className="min-h-screen flex items-center justify-center relative overflow-hidden pt-20">
-      {/* Animated background shapes */}
-      <div className="absolute inset-0 pointer-events-none">
+    <section className="min-h-screen flex items-center justify-center relative overflow-hidden pt-20 px-4">
+      {/* Minimal background shapes - hidden on mobile */}
+      <div className="absolute inset-0 pointer-events-none hidden md:block">
         <motion.div
-          className="absolute top-20 left-[10%] w-2 h-2 rounded-full bg-primary/50"
-          animate={{ y: [0, -20, 0], opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 3, repeat: Infinity }}
+          className="absolute top-20 left-[10%] w-2 h-2 rounded-full bg-primary/40"
+          animate={{ y: [0, -15, 0] }}
+          transition={{ duration: 4, repeat: Infinity }}
         />
         <motion.div
-          className="absolute top-40 right-[15%] w-3 h-3 rounded-full bg-secondary/50"
-          animate={{ y: [0, 20, 0], opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 4, repeat: Infinity, delay: 1 }}
-        />
-        <motion.div
-          className="absolute bottom-40 left-[20%] w-2 h-2 rounded-full bg-primary/30"
-          animate={{ y: [0, -15, 0], x: [0, 10, 0] }}
-          transition={{ duration: 5, repeat: Infinity, delay: 0.5 }}
-        />
-        <motion.div
-          className="absolute top-1/3 right-[25%] w-1 h-1 rounded-full bg-secondary/40"
-          animate={{ scale: [1, 2, 1], opacity: [0.4, 0.8, 0.4] }}
-          transition={{ duration: 3, repeat: Infinity, delay: 2 }}
+          className="absolute top-40 right-[15%] w-2 h-2 rounded-full bg-secondary/40"
+          animate={{ y: [0, 15, 0] }}
+          transition={{ duration: 5, repeat: Infinity, delay: 1 }}
         />
       </div>
 
@@ -195,29 +185,31 @@ const HeroSection = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
           >
             <div className="relative">
-              {/* Orbiting icons */}
-              {floatingIcons.map(({ icon: Icon, delay, x, y }, index) => (
-                <motion.div
-                  key={index}
-                  className="absolute w-10 h-10 glass-card rounded-xl flex items-center justify-center z-20"
-                  style={{ left: '50%', top: '50%' }}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{
-                    opacity: 1,
-                    scale: 1,
-                    x: [x, x + 10, x],
-                    y: [y, y - 10, y],
-                  }}
-                  transition={{
-                    opacity: { delay: 1.2 + delay },
-                    scale: { delay: 1.2 + delay },
-                    x: { duration: 4, repeat: Infinity, delay: delay },
-                    y: { duration: 3, repeat: Infinity, delay: delay },
-                  }}
-                >
-                  <Icon size={20} className="text-primary" />
-                </motion.div>
-              ))}
+              {/* Orbiting icons - hidden on mobile for performance */}
+              <div className="hidden md:block">
+                {floatingIcons.map(({ icon: Icon, delay, x, y }, index) => (
+                  <motion.div
+                    key={index}
+                    className="absolute w-10 h-10 glass-card rounded-xl flex items-center justify-center z-20"
+                    style={{ left: '50%', top: '50%' }}
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{
+                      opacity: 1,
+                      scale: 1,
+                      x: [x, x + 8, x],
+                      y: [y, y - 8, y],
+                    }}
+                    transition={{
+                      opacity: { delay: 1.2 + delay },
+                      scale: { delay: 1.2 + delay },
+                      x: { duration: 5, repeat: Infinity, delay: delay },
+                      y: { duration: 4, repeat: Infinity, delay: delay },
+                    }}
+                  >
+                    <Icon size={20} className="text-primary" />
+                  </motion.div>
+                ))}
+              </div>
 
               {/* Glow Effect */}
               <motion.div 
@@ -247,7 +239,7 @@ const HeroSection = () => {
               />
               
               {/* Image Container */}
-              <div className="relative w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-full overflow-hidden border-4 border-background">
+              <div className="relative w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-full overflow-hidden border-4 border-background">
                 <img
                   src={profilePhoto}
                   alt="Neetesh Kumar"
