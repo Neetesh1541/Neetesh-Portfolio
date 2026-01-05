@@ -1,73 +1,91 @@
-# Welcome to your Lovable project
+# 👋 Hi, I'm Neetesh Kumar
 
-## Project info
+🚀 **Full-Stack Developer | AI/ML Enthusiast | Startup Builder | Community Leader**
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+I’m a Computer Science Engineering student (2023–2027) at **Dr. A.P.J. Abdul Kalam Technical University**, passionate about building impactful products, scalable systems, and tech-driven solutions.  
+I specialize in **Full Stack Development**, **AI/ML**, and **startup product design**.
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## 🌟 About Me
 
-**Use Lovable**
+- 🎓 CSE Student | 3rd Year
+- 💻 Full-Stack Developer (React, Flask, Django, Node.js)
+- 🤖 AI/ML & Data Science Enthusiast
+- 🧠 Startup & Product Builder
+- 🌐 Founder of **Hackloop Community**
+- 🏆 5th Position – Startup Hackathon (**Mummy Meals**)
+- 🧑‍💼 Member of **GDG Gurgaon**, **GDG Noida**
+- 🎓 Microsoft Learn Student Ambassador (MLSA)
+- 🌱 Always learning & building
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🛠 Tech Stack
 
-**Use your preferred IDE**
+**Frontend:**  
+HTML, CSS, JavaScript, React, Tailwind CSS
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+**Backend:**  
+Python, Flask, Django, Node.js
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+**AI / ML:**  
+Python, OpenCV, NLP, TensorFlow (Basics), Scikit-learn
 
-Follow these steps:
+**Databases:**  
+MongoDB, MySQL, PostgreSQL
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+**Tools & Platforms:**  
+Git, GitHub, Vercel, Firebase, Linux
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 🚀 Projects
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+### 🍱 Mummy Meals  
+**Home-cooked food delivery platform connecting moms with bachelors**  
+🔗 https://mummy-meals-connect.vercel.app/
 
-**Edit a file directly in GitHub**
+### ♟ Chess Game  
+Interactive web-based chess game  
+🔗 https://chess-game-iota-eight.vercel.app/
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 🧠 Prompt Generator  
+AI-powered prompt generation platform  
+🔗 https://prompt-perfect-pro.vercel.app/
 
-**Use GitHub Codespaces**
+### 🎯 Interview Preparation Helper  
+Complete interview practice platform  
+🔗 https://neeteshinterview.vercel.app/
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### 🌍 Hackloop Community  
+A growing tech community for developers & students  
+🔗 https://www.hackloop.xyz
 
-## What technologies are used for this project?
+### 🛰 SpaceShield *(In Progress)*  
+AI-powered space traffic & satellite protection system
 
-This project is built with:
+---
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 💼 Why Hire Me?
 
-## How can I deploy this project?
+- Strong problem-solving & product mindset  
+- Proven experience in building real-world projects  
+- Leadership experience as a community founder  
+- Excellent communication & teamwork skills  
+- Passionate about learning & shipping products fast
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
+## 📫 Contact Me
 
-Yes, you can!
+- 📧 Email: neeteshk1104@gmail.com  
+- 📞 Phone: +91 8218828273  
+- 🐙 GitHub: https://github.com/neetesh1541  
+- 💼 LinkedIn: https://in.linkedin.com/in/neetesh-kumar-846616287  
+- 🌐 Portfolio: https://neetesh.tech
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+> *“Build fast. Learn faster. Create impact.”*
+
