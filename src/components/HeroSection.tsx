@@ -1,14 +1,7 @@
 import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
-import { ArrowDown, Github, Linkedin, Mail, Sparkles, Zap, Code2, Brain } from 'lucide-react';
+import { ArrowDown, Github, Linkedin, Mail, Sparkles } from 'lucide-react';
 import profilePhoto from '@/assets/profile-photo.jpg';
-
-const floatingIcons = [
-  { icon: Code2, delay: 0, x: -80, y: -60 },
-  { icon: Brain, delay: 0.5, x: 80, y: -50 },
-  { icon: Zap, delay: 1, x: -70, y: 60 },
-  { icon: Sparkles, delay: 1.5, x: 75, y: 50 },
-];
 
 const HeroSection = () => {
   return (
@@ -185,32 +178,6 @@ const HeroSection = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
           >
             <div className="relative">
-              {/* Orbiting icons - hidden on mobile for performance */}
-              <div className="hidden md:block">
-                {floatingIcons.map(({ icon: Icon, delay, x, y }, index) => (
-                  <motion.div
-                    key={index}
-                    className="absolute w-10 h-10 glass-card rounded-xl flex items-center justify-center z-20"
-                    style={{ left: '50%', top: '50%' }}
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{
-                      opacity: 1,
-                      scale: 1,
-                      x: [x, x + 8, x],
-                      y: [y, y - 8, y],
-                    }}
-                    transition={{
-                      opacity: { delay: 1.2 + delay },
-                      scale: { delay: 1.2 + delay },
-                      x: { duration: 5, repeat: Infinity, delay: delay },
-                      y: { duration: 4, repeat: Infinity, delay: delay },
-                    }}
-                  >
-                    <Icon size={20} className="text-primary" />
-                  </motion.div>
-                ))}
-              </div>
-
               {/* Glow Effect */}
               <motion.div 
                 className="absolute inset-0 bg-gradient-to-r from-primary/50 to-secondary/50 rounded-full blur-3xl"
@@ -223,7 +190,7 @@ const HeroSection = () => {
               
               {/* Rotating Border */}
               <motion.div
-                className="absolute -inset-3 rounded-full"
+                className="absolute -inset-3 rounded-full hidden md:block"
                 style={{
                   background: 'conic-gradient(from 0deg, hsl(199 89% 48%), hsl(263 70% 50%), hsl(199 89% 48%))',
                 }}
@@ -231,9 +198,9 @@ const HeroSection = () => {
                 transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
               />
               
-              {/* Secondary rotating ring */}
+              {/* Secondary rotating ring - hidden on mobile */}
               <motion.div
-                className="absolute -inset-6 rounded-full border border-primary/20"
+                className="absolute -inset-6 rounded-full border border-primary/20 hidden md:block"
                 animate={{ rotate: -360 }}
                 transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
               />
@@ -245,28 +212,11 @@ const HeroSection = () => {
                   alt="Neetesh Kumar"
                   className="w-full h-full object-cover"
                 />
-                {/* Overlay gradient */}
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500"
-                />
               </div>
 
-              {/* Stats badge */}
+              {/* Stats badge - hidden on small mobile */}
               <motion.div
-                className="absolute -bottom-2 right-0 glass-card rounded-xl px-4 py-2 z-10"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 1.5 }}
-              >
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-xs text-muted-foreground">Available for hire</span>
-                </div>
-              </motion.div>
-
-              {/* Stats badge */}
-              <motion.div
-                className="absolute -bottom-2 right-0 glass-card rounded-xl px-4 py-2 z-10"
+                className="absolute -bottom-2 right-0 glass-card rounded-xl px-4 py-2 z-10 hidden sm:block"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 1.5 }}
@@ -280,9 +230,9 @@ const HeroSection = () => {
           </motion.div>
         </div>
 
-        {/* Scroll Indicator */}
+        {/* Scroll Indicator - hidden on mobile */}
         <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:block"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 2 }}

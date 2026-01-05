@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import { useRef } from 'react';
-import { Mail, Phone, Github, Linkedin, Send, Download, MapPin, CheckCircle2 } from 'lucide-react';
+import { Mail, Phone, Github, Linkedin, Send, Download, MapPin, CheckCircle2, FileText } from 'lucide-react';
 import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
 
 const contactInfo = [
   {
@@ -132,18 +133,30 @@ const ContactSection = () => {
               </div>
             </div>
 
-            {/* Resume Download */}
-            <motion.a
-              href="/Neetesh_Kumar_Resume.pdf"
-              download="Neetesh_Kumar_Resume.pdf"
-              className="btn-glass w-full flex items-center justify-center gap-2"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => toast.success('Resume download started!')}
-            >
-              <Download size={20} />
-              Download Resume
-            </motion.a>
+            {/* Resume Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link to="/resume" className="flex-1">
+                <motion.div
+                  className="btn-primary-glow w-full flex items-center justify-center gap-2"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <FileText size={20} />
+                  View Resume
+                </motion.div>
+              </Link>
+              <motion.a
+                href="/Neetesh_Kumar_Resume.pdf"
+                download="Neetesh_Kumar_Resume.pdf"
+                className="btn-glass flex-1 flex items-center justify-center gap-2"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => toast.success('Resume download started!')}
+              >
+                <Download size={20} />
+                Download PDF
+              </motion.a>
+            </div>
           </motion.div>
 
           {/* Contact Form */}
