@@ -5,6 +5,7 @@ import { useRef } from 'react';
 import { Mail, Phone, Github, Linkedin, Send, Download, MapPin, CheckCircle2, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 const contactInfo = [
   {
@@ -56,15 +57,33 @@ const ContactSection = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast.success('Message sent successfully! I\'ll get back to you soon.', {
-      icon: <CheckCircle2 className="text-green-500" />,
-    });
-    
-    setFormData({ name: '', email: '', message: '' });
-    setIsSubmitting(false);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-contact-email', {
+        body: {
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+        },
+      });
+
+      if (error) {
+        console.error('Error sending email:', error);
+        toast.error('Failed to send message. Please try again.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      toast.success('Message sent successfully! I\'ll get back to you soon.', {
+        icon: <CheckCircle2 className="text-green-500" />,
+      });
+      
+      setFormData({ name: '', email: '', message: '' });
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Failed to send message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
