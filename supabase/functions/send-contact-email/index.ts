@@ -15,6 +15,10 @@ interface ContactEmailRequest {
 }
 
 async function sendEmail(to: string[], subject: string, html: string) {
+  if (!RESEND_API_KEY) {
+    throw new Error("RESEND_API_KEY is not configured");
+  }
+
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -29,11 +33,20 @@ async function sendEmail(to: string[], subject: string, html: string) {
     }),
   });
 
-  const data = await res.json();
-  
+  const text = await res.text();
+  let data: any = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = { raw: text };
+  }
+
   if (!res.ok) {
-    console.error("Resend API error:", data);
-    throw new Error(data.message || `Failed to send email: ${res.status}`);
+    console.error("Resend API error:", { status: res.status, data });
+    throw new Error(
+      (data && (data.message || data.error)) ||
+        `Failed to send email (status ${res.status})`
+    );
   }
 
   return data;
@@ -90,10 +103,37 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Notification email sent:", notificationResult);
 
+    // Try to send confirmation email (may fail without a verified sending domain)
+    let confirmationSent = false;
+    try {
+      await sendEmail(
+        [email],
+        "Thanks for reaching out!",
+        `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2 style="color: #8B5CF6;">Hi ${name}!</h2>
+            <p>Thanks for contacting me — I received your message and will reply soon.</p>
+            <p style="color: #666;">(If you don't see this in production, it usually means the email domain isn't verified yet.)</p>
+          </div>
+        `
+      );
+      confirmationSent = true;
+    } catch (err) {
+      const e = err as any;
+      console.log(
+        "Confirmation email skipped (domain likely not verified):",
+        e?.message ?? e
+      );
+    }
+
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: "Message received successfully! I'll get back to you soon."
+      JSON.stringify({
+        success: true,
+        message: "Message received successfully! I'll get back to you soon.",
+        confirmationSent,
+        note: confirmationSent
+          ? undefined
+          : "Confirmation emails require a verified sending domain in Resend.",
       }),
       {
         status: 200,
