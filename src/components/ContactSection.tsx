@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import { useRef } from 'react';
-import { Mail, Phone, Github, Linkedin, Send, Download, MapPin, CheckCircle2, FileText } from 'lucide-react';
+import { Mail, Phone, Github, Linkedin, Send, Download, MapPin, CheckCircle2, FileText, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -68,19 +68,25 @@ const ContactSection = () => {
 
       if (error) {
         console.error('Error sending email:', error);
-        toast.error('Failed to send message. Please try again.');
-        setIsSubmitting(false);
+        toast.error(error.message || 'Failed to send message. Please try again.');
         return;
       }
 
-      toast.success('Message sent successfully! I\'ll get back to you soon.', {
-        icon: <CheckCircle2 className="text-green-500" />,
-      });
-      
-      setFormData({ name: '', email: '', message: '' });
-    } catch (error) {
-      console.error('Error:', error);
+      if (data?.success) {
+        toast.success("Message sent successfully! I'll get back to you soon.", {
+          icon: <CheckCircle2 className="text-green-500" />,
+        });
+        if (data?.confirmationSent === false && data?.note) {
+          toast.message(data.note);
+        }
+        setFormData({ name: '', email: '', message: '' });
+        return;
+      }
+
       toast.error('Failed to send message. Please try again.');
+    } catch (error: any) {
+      console.error('Error:', error);
+      toast.error(error?.message || 'Failed to send message. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -167,13 +173,14 @@ const ContactSection = () => {
               <motion.a
                 href="/Neetesh_Kumar_Resume.pdf"
                 download="Neetesh_Kumar_Resume.pdf"
-                className="btn-glass flex-1 flex items-center justify-center gap-2"
+                className="btn-primary-glow flex-1 flex items-center justify-center gap-2"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => toast.success('Resume download started!')}
               >
                 <Download size={20} />
                 Download PDF
+                <Sparkles size={16} />
               </motion.a>
             </div>
           </motion.div>
