@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { Mail, Phone, Github, Linkedin, Send, Download, MapPin, CheckCircle2, FileText, Sparkles } from 'lucide-react';
@@ -52,10 +52,14 @@ const ContactSection = () => {
     message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formStatus, setFormStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [statusMessage, setStatusMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setFormStatus('idle');
+    setStatusMessage('');
     
     try {
       const { data, error } = await supabase.functions.invoke('send-contact-email', {
@@ -68,25 +72,24 @@ const ContactSection = () => {
 
       if (error) {
         console.error('Error sending email:', error);
-        toast.error(error.message || 'Failed to send message. Please try again.');
+        setFormStatus('error');
+        setStatusMessage('Failed to send message. Please try again.');
         return;
       }
 
       if (data?.success) {
-        toast.success("Message sent successfully! I'll get back to you soon.", {
-          icon: <CheckCircle2 className="text-green-500" />,
-        });
-        if (data?.confirmationSent === false && data?.note) {
-          toast.message(data.note);
-        }
+        setFormStatus('success');
+        setStatusMessage("I've received your message and will reply soon!");
         setFormData({ name: '', email: '', message: '' });
         return;
       }
 
-      toast.error('Failed to send message. Please try again.');
+      setFormStatus('error');
+      setStatusMessage('Failed to send message. Please try again.');
     } catch (error: any) {
       console.error('Error:', error);
-      toast.error(error?.message || 'Failed to send message. Please try again.');
+      setFormStatus('error');
+      setStatusMessage('Failed to send message. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -258,6 +261,26 @@ const ContactSection = () => {
                     </>
                   )}
                 </motion.button>
+
+                {/* Inline Status Message */}
+                <AnimatePresence mode="wait">
+                  {formStatus !== 'idle' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3 }}
+                      className={`flex items-center gap-2 text-sm p-3 rounded-lg ${
+                        formStatus === 'success'
+                          ? 'bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20'
+                          : 'bg-destructive/10 text-destructive border border-destructive/20'
+                      }`}
+                    >
+                      {formStatus === 'success' && <CheckCircle2 size={16} />}
+                      {statusMessage}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </form>
           </motion.div>
