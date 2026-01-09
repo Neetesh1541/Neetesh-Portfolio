@@ -246,6 +246,21 @@
 
   .glass-card-hover {
     @apply glass-card transition-all duration-500;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .glass-card-hover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 0%, hsla(var(--primary) / 0.05) 50%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  .glass-card-hover:hover::before {
+    opacity: 1;
   }
 
   .glass-card-hover:hover {
@@ -266,17 +281,49 @@
   }
 
   .btn-primary-glow {
-    @apply relative overflow-hidden bg-primary text-primary-foreground font-semibold px-6 py-3 rounded-lg transition-all duration-300;
+    @apply relative overflow-hidden bg-primary text-primary-foreground font-semibold px-6 py-3 rounded-xl transition-all duration-300;
     box-shadow: var(--glow-primary);
+  }
+
+  .btn-primary-glow::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(45deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--primary)));
+    background-size: 200% 200%;
+    animation: gradient-shift 3s ease infinite;
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .btn-primary-glow:hover::before {
+    opacity: 1;
   }
 
   .btn-primary-glow:hover {
     @apply scale-105;
-    box-shadow: 0 0 60px hsla(199, 89%, 48%, 0.6);
+    box-shadow: 0 0 60px hsla(199, 89%, 48%, 0.6), 0 0 100px hsla(263, 70%, 50%, 0.3);
   }
 
   .btn-glass {
-    @apply glass-card px-6 py-3 rounded-lg font-semibold transition-all duration-300;
+    @apply glass-card px-6 py-3 rounded-xl font-semibold transition-all duration-300 relative overflow-hidden;
+  }
+
+  .btn-glass::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, hsla(var(--primary) / 0.1), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .btn-glass:hover::before {
+    left: 100%;
   }
 
   .btn-glass:hover {
@@ -309,6 +356,43 @@
     @apply absolute rounded-full;
     background: radial-gradient(circle, hsla(199, 89%, 48%, 0.8) 0%, transparent 70%);
     animation: float-particle 20s linear infinite;
+  }
+
+  /* Enhanced hover effects */
+  .hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px -15px hsla(var(--primary) / 0.3);
+  }
+
+  /* Shine effect */
+  .shine-effect {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shine-effect::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      45deg,
+      transparent 30%,
+      hsla(var(--primary) / 0.1) 50%,
+      transparent 70%
+    );
+    transform: rotate(45deg) translateX(-100%);
+    transition: transform 0.6s ease;
+  }
+
+  .shine-effect:hover::after {
+    transform: rotate(45deg) translateX(100%);
   }
 }
 
