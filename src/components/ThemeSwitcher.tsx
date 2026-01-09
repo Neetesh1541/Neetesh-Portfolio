@@ -39,7 +39,7 @@ const ThemeSwitcher = () => {
   }, [theme, setTheme]);
 
   return (
-    <div className="relative">
+    <div className="relative z-[60]">
       {/* Particle burst effect */}
       <ParticleBurst 
         isActive={isAnimating} 
@@ -100,14 +100,17 @@ const ThemeSwitcher = () => {
         {isOpen && (
           <>
             <motion.div
-              className="fixed inset-0 z-40"
+              className="fixed inset-0 z-[58]"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsOpen(false)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsOpen(false);
+              }}
             />
             <motion.div
-              className="absolute right-0 top-full mt-2 z-50 glass-card rounded-2xl p-2 min-w-[160px] overflow-hidden border border-primary/20"
+              className="absolute right-0 top-full mt-2 z-[59] glass-card rounded-2xl p-2 min-w-[160px] overflow-hidden border border-primary/20"
               initial={{ opacity: 0, y: -10, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.9 }}

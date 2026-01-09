@@ -86,14 +86,18 @@ const Navbar = () => {
         <div className="md:hidden flex items-center gap-2">
           <ThemeSwitcher />
           <motion.button
-            className="text-foreground p-2 glass-card rounded-lg"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="text-foreground p-2 glass-card rounded-lg relative z-[60]"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsMobileMenuOpen(!isMobileMenuOpen);
+            }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            aria-label="Toggle mobile menu"
           >
             <motion.div
-              animate={{ rotate: isMobileMenuOpen ? 90 : 0 }}
-              transition={{ duration: 0.2 }}
+              animate={{ rotate: isMobileMenuOpen ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </motion.div>
@@ -109,7 +113,7 @@ const Navbar = () => {
             animate={{ opacity: 1, height: 'auto', y: 0 }}
             exit={{ opacity: 0, height: 0, y: -20 }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="md:hidden glass-card mt-2 mx-4 rounded-2xl overflow-hidden border border-primary/10"
+            className="md:hidden glass-card mt-2 mx-4 rounded-2xl overflow-hidden border border-primary/10 relative z-[55]"
           >
             <div className="flex flex-col p-4 gap-2">
               {navItems.map((item, index) => (
