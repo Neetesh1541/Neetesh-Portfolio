@@ -36,9 +36,14 @@ const Index = () => {
               </ScrollReveal>
             </SectionVoiceTrigger>
             
-            <ScrollReveal variant="fadeUp" delay={0.1}>
-              <SkillsSection />
-            </ScrollReveal>
+            <SectionVoiceTrigger
+              sectionId="skills"
+              message="Here I showcase my technical skills in frontend, backend, AI and machine learning, and the tools I use."
+            >
+              <ScrollReveal variant="fadeUp" delay={0.1}>
+                <SkillsSection />
+              </ScrollReveal>
+            </SectionVoiceTrigger>
             
             <SectionVoiceTrigger
               sectionId="projects"
@@ -49,17 +54,32 @@ const Index = () => {
               </ScrollReveal>
             </SectionVoiceTrigger>
             
-            <ScrollReveal variant="fadeUp" delay={0.1}>
-              <BlogSection />
-            </ScrollReveal>
+            <SectionVoiceTrigger
+              sectionId="blog"
+              message="I also write about web development, AI, and my community building experiences. Check out my articles."
+            >
+              <ScrollReveal variant="fadeUp" delay={0.1}>
+                <BlogSection />
+              </ScrollReveal>
+            </SectionVoiceTrigger>
             
-            <ScrollReveal variant="fadeUp" delay={0.1}>
-              <AchievementsSection />
-            </ScrollReveal>
+            <SectionVoiceTrigger
+              sectionId="achievements"
+              message="Here are my achievements and community contributions, including founding the HackLoop developer community."
+            >
+              <ScrollReveal variant="fadeUp" delay={0.1}>
+                <AchievementsSection />
+              </ScrollReveal>
+            </SectionVoiceTrigger>
             
-            <ScrollReveal variant="fadeUp" delay={0.1}>
-              <ExperienceSection />
-            </ScrollReveal>
+            <SectionVoiceTrigger
+              sectionId="experience"
+              message="This section covers my professional journey and career path in tech."
+            >
+              <ScrollReveal variant="fadeUp" delay={0.1}>
+                <ExperienceSection />
+              </ScrollReveal>
+            </SectionVoiceTrigger>
             
             <SectionVoiceTrigger
               sectionId="contact"
