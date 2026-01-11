@@ -270,7 +270,7 @@ const AchievementsSection = () => {
               to build innovative projects, share knowledge, and grow together in the tech ecosystem.
             </p>
             <motion.a
-              href="https://hackloop-moments.vercel.app/"
+              href="https://www.hackloop.me"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary-glow inline-flex items-center gap-2 relative overflow-hidden"

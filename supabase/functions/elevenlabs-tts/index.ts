@@ -46,6 +46,21 @@ serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("ElevenLabs API error:", response.status, errorText);
+      
+      // Return more helpful error messages
+      if (response.status === 401) {
+        return new Response(
+          JSON.stringify({ 
+            error: "ElevenLabs API authentication failed",
+            details: "Please update your ElevenLabs API key. The current key may be invalid or the free tier quota may be exhausted."
+          }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
+      
       throw new Error(`ElevenLabs API error: ${response.status}`);
     }
 
@@ -60,7 +75,10 @@ serve(async (req) => {
   } catch (error) {
     console.error("TTS error:", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      JSON.stringify({ 
+        error: error instanceof Error ? error.message : "Unknown error",
+        details: "Please ensure your ElevenLabs API key is valid and has available credits"
+      }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

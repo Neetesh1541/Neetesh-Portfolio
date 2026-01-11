@@ -42,7 +42,7 @@ const projects = [
     title: 'HackLoop Moments',
     description: 'Official website for HackLoop Community - a platform for developers to learn, collaborate, and build amazing projects together.',
     techStack: ['React', 'Next.js', 'Community Features', 'Events'],
-    liveUrl: 'https://hackloop-moments.vercel.app/',
+    liveUrl: 'https://www.hackloop.me',
     image: projectHackloop,
   },
   {
