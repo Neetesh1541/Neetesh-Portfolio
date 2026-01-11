@@ -140,34 +140,67 @@ const SkillsSection = () => {
               transition={{ duration: 0.6, delay: categoryIndex * 0.1 }}
               whileHover={{ y: -8, scale: 1.02 }}
             >
-              {/* Image Header */}
-              <div className="relative h-32 overflow-hidden">
+              {/* Image Header - Enhanced */}
+              <div className="relative h-40 overflow-hidden">
                 <img 
                   src={category.image} 
                   alt={category.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-125"
                 />
-                <div className={`absolute inset-0 bg-gradient-to-t ${category.color} opacity-60`} />
+                <div className={`absolute inset-0 bg-gradient-to-t ${category.color} opacity-70 group-hover:opacity-80 transition-opacity`} />
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
                 
-                {/* Icon overlay */}
+                {/* Animated overlay pattern */}
                 <motion.div
-                  className="absolute top-4 left-4 w-12 h-12 rounded-xl glass-card flex items-center justify-center"
-                  whileHover={{ rotate: 360 }}
+                  className="absolute inset-0 opacity-20"
+                  style={{
+                    backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+                    backgroundSize: '16px 16px'
+                  }}
+                  animate={{ backgroundPosition: ['0% 0%', '100% 100%'] }}
+                  transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                />
+                
+                {/* Icon overlay with glow */}
+                <motion.div
+                  className={`absolute top-4 left-4 w-14 h-14 rounded-xl glass-card flex items-center justify-center shadow-lg`}
+                  whileHover={{ rotate: 360, scale: 1.1 }}
                   transition={{ duration: 0.6 }}
+                  style={{ boxShadow: `0 0 20px hsla(var(--primary) / 0.4)` }}
                 >
-                  <category.icon className="w-6 h-6 text-foreground" />
+                  <category.icon className="w-7 h-7 text-foreground" />
                 </motion.div>
+                
+                {/* Floating particles */}
+                {[...Array(3)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-2 h-2 rounded-full bg-white/50"
+                    style={{ left: `${20 + i * 30}%`, top: `${20 + i * 20}%` }}
+                    animate={{ y: [0, -10, 0], opacity: [0.3, 0.8, 0.3] }}
+                    transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
+                  />
+                ))}
               </div>
               
               <div className="p-5">
-                <h3 className="font-display font-bold text-lg text-foreground mb-4">{category.title}</h3>
+                <h3 className="font-display font-bold text-xl text-foreground mb-4 flex items-center gap-2">
+                  {category.title}
+                  <motion.span
+                    className="text-xs px-2 py-1 rounded-full bg-primary/20 text-primary"
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={isInView ? { opacity: 1, scale: 1 } : {}}
+                    transition={{ delay: categoryIndex * 0.1 + 0.5 }}
+                  >
+                    {category.skills.length} skills
+                  </motion.span>
+                </h3>
                 
                 <div className="flex flex-wrap gap-2">
                   {category.skills.map((skill, skillIndex) => (
                     <motion.span
                       key={skill}
-                      className="px-3 py-1.5 rounded-full text-xs bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-primary/20 hover:text-primary transition-all cursor-default"
+                      className="px-3 py-1.5 rounded-full text-xs font-medium bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-primary/20 hover:text-primary transition-all cursor-default border border-transparent hover:border-primary/30"
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={isInView ? { opacity: 1, scale: 1 } : {}}
                       transition={{ duration: 0.3, delay: categoryIndex * 0.1 + skillIndex * 0.05 + 0.3 }}
@@ -182,16 +215,25 @@ const SkillsSection = () => {
           ))}
         </div>
 
-        {/* Interactive Charts Section */}
+        {/* Interactive Charts Section - Enhanced */}
         <motion.div
-          className="glass-card rounded-3xl p-8 relative overflow-hidden"
+          className="glass-card rounded-3xl p-8 relative overflow-hidden border border-primary/10"
           initial={{ opacity: 0, y: 50 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.5 }}
         >
           {/* Decorative elements */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-secondary/10 to-transparent rounded-full blur-3xl" />
+          <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-primary/15 to-transparent rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-secondary/15 to-transparent rounded-full blur-3xl" />
+          
+          {/* Animated grid pattern */}
+          <motion.div
+            className="absolute inset-0 opacity-5"
+            style={{
+              backgroundImage: 'linear-gradient(hsl(var(--primary)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary)) 1px, transparent 1px)',
+              backgroundSize: '40px 40px'
+            }}
+          />
 
           <div className="relative z-10">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
