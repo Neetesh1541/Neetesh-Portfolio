@@ -1,40 +1,38 @@
 import { useEffect, useRef } from "react";
 import { useVoiceGuideContext } from "./VoiceGuideProvider";
 
-interface SectionVoiceTriggerProps {
+interface Props {
   sectionId: string;
   message: string;
   children: React.ReactNode;
 }
 
-const SectionVoiceTrigger = ({ sectionId, message, children }: SectionVoiceTriggerProps) => {
+const SectionVoiceTrigger = ({ sectionId, message, children }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
   const { playSectionGuide } = useVoiceGuideContext();
-  const hasTriggered = useRef(false);
+  const hasPlayed = useRef(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (!ref.current || hasTriggered.current) return;
-
+    const onScroll = () => {
+      if (!ref.current || hasPlayed.current) return;
       const rect = ref.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+      const middle = window.innerHeight / 2;
 
-      // Trigger jab section ka center viewport me ho
-      if (rect.top <= windowHeight * 0.5 && rect.bottom >= windowHeight * 0.5) {
-        hasTriggered.current = true;
+      if (rect.top < middle && rect.bottom > middle) {
+        hasPlayed.current = true;
         playSectionGuide(sectionId, message);
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
-    window.addEventListener("resize", handleScroll);
+    window.addEventListener("scroll", onScroll);
+    window.addEventListener("resize", onScroll);
 
-    // Page load me bhi check karo
-    handleScroll();
+    // check once on load
+    onScroll();
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
     };
   }, [sectionId, message, playSectionGuide]);
 
