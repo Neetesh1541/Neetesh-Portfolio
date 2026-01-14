@@ -2,12 +2,12 @@ import { motion } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { ExternalLink, Github, Sparkles } from 'lucide-react';
-import projectPromptGenerator from '@/assets/project-prompt-generator.jpg';
+import projectPromptGenerator from '@/assets/project-prompt-new.jpg';
 import projectChess from '@/assets/project-chess.jpg';
 import projectMummyMeals from '@/assets/project-mummy-meals.jpg';
-import projectInterview from '@/assets/project-interview.jpg';
+import projectInterview from '@/assets/project-interview-new.jpg';
 import projectHackloop from '@/assets/project-hackloop.jpg';
-import projectSnakeGame from '@/assets/project-snake-game.jpg';
+import projectSpaceShield from '@/assets/project-space-shield.jpg';
 
 const projects = [
   {
@@ -15,6 +15,7 @@ const projects = [
     description: 'AI-powered tool that generates optimized prompts for various AI models, helping users get better results from their AI interactions.',
     techStack: ['React', 'TypeScript', 'AI/ML', 'Tailwind CSS'],
     liveUrl: 'https://prompt-perfect-pro.vercel.app/',
+    githubUrl: 'https://github.com/neetesh1541/prompt-perfect-pro',
     image: projectPromptGenerator,
   },
   {
@@ -22,6 +23,7 @@ const projects = [
     description: 'Interactive chess game with AI opponent, move validation, and a sleek modern interface for an engaging gaming experience.',
     techStack: ['React', 'TypeScript', 'Game Logic', 'CSS'],
     liveUrl: 'https://chess-game-iota-eight.vercel.app/',
+    githubUrl: 'https://github.com/neetesh1541/chess-game',
     image: projectChess,
   },
   {
@@ -29,6 +31,7 @@ const projects = [
     description: 'Food ordering platform connecting home chefs with customers, featuring 5th position in Startup Hackathon.',
     techStack: ['React', 'Node.js', 'Database', 'Payment Integration'],
     liveUrl: 'https://mummy-meals-connect.vercel.app/',
+    githubUrl: 'https://github.com/neetesh1541/mummy-meals',
     image: projectMummyMeals,
   },
   {
@@ -36,6 +39,7 @@ const projects = [
     description: 'Comprehensive interview preparation platform with curated questions, tips, and practice resources for tech interviews.',
     techStack: ['React', 'AI Integration', 'Tailwind', 'Content Management'],
     liveUrl: 'https://neeteshinterview.vercel.app/',
+    githubUrl: 'https://github.com/neetesh1541/interview-prep',
     image: projectInterview,
   },
   {
@@ -43,14 +47,16 @@ const projects = [
     description: 'Official website for HackLoop Community - a platform for developers to learn, collaborate, and build amazing projects together.',
     techStack: ['React', 'Next.js', 'Community Features', 'Events'],
     liveUrl: 'https://www.hackloop.me',
+    githubUrl: 'https://github.com/neetesh1541/hackloop',
     image: projectHackloop,
   },
   {
-    title: 'Snake Game',
-    description: 'Classic arcade snake game with modern neon aesthetics, smooth animations, and responsive controls for an addictive gaming experience.',
-    techStack: ['React', 'TypeScript', 'Canvas', 'Game Logic'],
-    liveUrl: 'https://snake-game-2-o.vercel.app/',
-    image: projectSnakeGame,
+    title: 'Space Shield',
+    description: 'Satellite and space debris tracking platform that provides real-time orbital data, collision predictions, and comprehensive information about space objects and planets.',
+    techStack: ['React', 'TypeScript', 'Space API', 'Data Visualization'],
+    liveUrl: 'https://space-shield.vercel.app/',
+    githubUrl: 'https://github.com/neetesh1541/space-shield',
+    image: projectSpaceShield,
   },
 ];
 
@@ -124,27 +130,25 @@ const ProjectsSection = () => {
 
                 {/* Actions */}
                 <div className="flex gap-3">
-                  <motion.a
+                  <a
                     href={project.liveUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors hover:scale-[1.02] active:scale-[0.98]"
+                    onClick={(e) => e.stopPropagation()}
                   >
                     <ExternalLink size={16} />
                     Live Demo
-                  </motion.a>
-                  <motion.a
-                    href="https://github.com/neetesh1541"
+                  </a>
+                  <a
+                    href={project.githubUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2.5 rounded-lg border border-border hover:border-primary/50 transition-colors"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    className="p-2.5 rounded-lg border border-border hover:border-primary/50 transition-colors hover:scale-105 active:scale-95"
+                    onClick={(e) => e.stopPropagation()}
                   >
                     <Github size={20} className="text-muted-foreground hover:text-primary" />
-                  </motion.a>
+                  </a>
                 </div>
               </div>
             </motion.div>
