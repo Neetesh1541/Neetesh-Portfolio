@@ -1,6 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { useInView } from 'framer-motion';
-import { useVoiceGuideContext } from './VoiceGuideProvider';
+import { useEffect, useRef } from "react";
+import { useVoiceGuideContext } from "./VoiceGuideProvider";
 
 interface SectionVoiceTriggerProps {
   sectionId: string;
@@ -10,25 +9,38 @@ interface SectionVoiceTriggerProps {
 
 const SectionVoiceTrigger = ({ sectionId, message, children }: SectionVoiceTriggerProps) => {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { 
-    margin: "-30% 0px -30% 0px",
-    once: true 
-  });
   const { playSectionGuide } = useVoiceGuideContext();
   const hasTriggered = useRef(false);
 
   useEffect(() => {
-    if (isInView && !hasTriggered.current) {
-      hasTriggered.current = true;
-      // Small delay before playing section guide
-      const timer = setTimeout(() => {
-        playSectionGuide(sectionId, message);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [isInView, sectionId, message, playSectionGuide]);
+    const element = ref.current;
+    if (!element) return;
 
-  return <div ref={ref}>{children}</div>;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasTriggered.current) {
+          hasTriggered.current = true;
+          setTimeout(() => {
+            playSectionGuide(sectionId, message);
+          }, 400);
+        }
+      },
+      {
+        root: null,
+        threshold: 0.45,
+      }
+    );
+
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, [sectionId, message, playSectionGuide]);
+
+  return (
+    <div ref={ref} className="relative pointer-events-auto">
+      {children}
+    </div>
+  );
 };
 
 export default SectionVoiceTrigger;
