@@ -1,5 +1,4 @@
-import { motion } from 'framer-motion';
-import { useInView } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { ExternalLink, Github, Sparkles } from 'lucide-react';
 import projectPromptGenerator from '@/assets/project-prompt-new.jpg';
@@ -63,6 +62,7 @@ const ProjectsSection = () => {
   return (
     <section id="projects" className="py-24 relative" ref={ref}>
       <div className="container mx-auto px-4">
+
         <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 50 }}
@@ -83,67 +83,59 @@ const ProjectsSection = () => {
           {projects.map((project, index) => (
             <motion.div
               key={project.title}
-              className="glass-card-hover rounded-2xl overflow-hidden group"
+              className="glass-card-hover rounded-2xl overflow-hidden group relative"
               initial={{ opacity: 0, y: 50 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: index * 0.1 }}
             >
-            {/* Project Header with Image */}
-              <div className="h-48 relative overflow-hidden">
+              <div className="h-48 relative overflow-hidden pointer-events-none">
                 <img
                   src={project.image}
                   alt={project.title}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-                {/* Animated lines */}
-                <div className="absolute inset-0 opacity-30">
+                <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute inset-0 opacity-30 pointer-events-none">
                   <div className="absolute top-0 left-0 w-full h-px bg-white/50 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                   <div className="absolute bottom-0 right-0 w-full h-px bg-white/50 transform translate-x-full group-hover:-translate-x-full transition-transform duration-1000" />
                 </div>
               </div>
 
-              {/* Project Content */}
-              <div className="p-6">
-                <h3 className="text-xl font-display font-bold text-foreground mb-3 group-hover:text-primary transition-colors">
+              <div className="p-6 relative z-10">
+                <h3 className="text-xl font-display font-bold mb-3 group-hover:text-primary transition-colors">
                   {project.title}
                 </h3>
+
                 <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
                   {project.description}
                 </p>
 
-                {/* Tech Stack */}
                 <div className="flex flex-wrap gap-2 mb-6">
                   {project.techStack.map((tech) => (
-                    <span
-                      key={tech}
-                      className="px-2 py-1 text-xs rounded-md bg-primary/10 text-primary"
-                    >
+                    <span key={tech} className="px-2 py-1 text-xs rounded-md bg-primary/10 text-primary">
                       {tech}
                     </span>
                   ))}
                 </div>
 
-                {/* Actions */}
                 <div className="flex gap-3">
                   <a
                     href={project.liveUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors hover:scale-[1.02] active:scale-[0.98]"
-                    onClick={(e) => e.stopPropagation()}
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition"
                   >
                     <ExternalLink size={16} />
                     Live Demo
                   </a>
+
                   <a
                     href={GITHUB_PROFILE}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2.5 rounded-lg border border-border hover:border-primary/50 transition-colors hover:scale-105 active:scale-95"
-                    onClick={(e) => e.stopPropagation()}
+                    className="p-2.5 rounded-lg border border-border hover:border-primary/50 transition"
                   >
-                    <Github size={20} className="text-muted-foreground hover:text-primary" />
+                    <Github size={20} />
                   </a>
                 </div>
               </div>
@@ -151,25 +143,6 @@ const ProjectsSection = () => {
           ))}
         </div>
 
-        {/* View More CTA */}
-        <motion.div
-          className="text-center mt-12"
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : {}}
-          transition={{ delay: 0.8 }}
-        >
-          <motion.a
-            href="https://github.com/neetesh1541"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-glass inline-flex items-center gap-2"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Github size={20} />
-            View More on GitHub
-          </motion.a>
-        </motion.div>
       </div>
     </section>
   );
