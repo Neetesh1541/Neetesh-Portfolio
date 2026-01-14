@@ -1,68 +1,63 @@
-import { createContext, useContext, useEffect, ReactNode } from 'react';
-import { useVoiceGuide } from '@/hooks/useVoiceGuide';
-import VoiceToggle from './VoiceToggle';
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 
-interface VoiceGuideContextType {
-  isEnabled: boolean;
-  isSpeaking: boolean;
-  playSectionGuide: (sectionId: string, message: string) => Promise<void>;
+interface VoiceGuideContextProps {
+  playSectionGuide: (sectionId: string, message: string) => void;
+  playGreeting: () => void;
 }
 
-const VoiceGuideContext = createContext<VoiceGuideContextType | null>(null);
+const VoiceGuideContext = createContext<VoiceGuideContextProps>({
+  playSectionGuide: () => {},
+  playGreeting: () => {},
+});
 
-export const useVoiceGuideContext = () => {
-  const context = useContext(VoiceGuideContext);
-  if (!context) {
-    throw new Error('useVoiceGuideContext must be used within VoiceGuideProvider');
-  }
-  return context;
-};
+export const useVoiceGuideContext = () => useContext(VoiceGuideContext);
 
-interface VoiceGuideProviderProps {
-  children: ReactNode;
-}
+export const VoiceGuideProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
 
-const VoiceGuideProvider = ({ children }: VoiceGuideProviderProps) => {
-  const { isEnabled, isSpeaking, isGlowing, toggleVoice, playGreeting, playSectionGuide } = useVoiceGuide();
-
-  // Play greeting after 1.5-2 second delay on page load
   useEffect(() => {
-    const handleUserInteraction = () => {
-      // Wait for user interaction to satisfy browser autoplay policy
-      const timer = setTimeout(() => {
-        playGreeting();
-      }, 1800);
-
-      // Remove listeners after first interaction
-      document.removeEventListener('click', handleUserInteraction);
-      document.removeEventListener('scroll', handleUserInteraction);
-      document.removeEventListener('keydown', handleUserInteraction);
-      
-      return () => clearTimeout(timer);
+    const loadVoices = () => {
+      const v = window.speechSynthesis.getVoices();
+      if (v.length) setVoices(v);
     };
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }, []);
 
-    document.addEventListener('click', handleUserInteraction, { once: true });
-    document.addEventListener('scroll', handleUserInteraction, { once: true });
-    document.addEventListener('keydown', handleUserInteraction, { once: true });
+  const speak = useCallback((text: string) => {
+    if (!window.speechSynthesis) return;
+    if (window.speechSynthesis.speaking) window.speechSynthesis.cancel();
 
-    return () => {
-      document.removeEventListener('click', handleUserInteraction);
-      document.removeEventListener('scroll', handleUserInteraction);
-      document.removeEventListener('keydown', handleUserInteraction);
-    };
-  }, [playGreeting]);
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "en-US";
+    utter.pitch = 1;
+    utter.rate = 1;
+    utter.volume = 1;
+
+    // Male voice preferred
+    const male = voices.find(v => v.name.toLowerCase().includes("male")) || voices[0];
+    if (male) utter.voice = male;
+
+    window.speechSynthesis.speak(utter);
+  }, [voices]);
+
+  const playGreeting = useCallback(() => {
+    const hour = new Date().getHours();
+    let greeting = "Hello, welcome to my portfolio!";
+    if (hour < 12) greeting = "Good morning! Welcome to my portfolio!";
+    else if (hour < 18) greeting = "Good afternoon! Welcome to my portfolio!";
+    else greeting = "Good evening! Welcome to my portfolio!";
+
+    speak(greeting + " I am Neetesh, a full-stack developer. Feel free to explore my work.");
+  }, [speak]);
+
+  const playSectionGuide = useCallback((sectionId: string, message: string) => {
+    speak(message);
+  }, [speak]);
 
   return (
-    <VoiceGuideContext.Provider value={{ isEnabled, isSpeaking, playSectionGuide }}>
+    <VoiceGuideContext.Provider value={{ playSectionGuide, playGreeting }}>
       {children}
-      <VoiceToggle
-        isEnabled={isEnabled}
-        isSpeaking={isSpeaking}
-        isGlowing={isGlowing}
-        onToggle={toggleVoice}
-      />
     </VoiceGuideContext.Provider>
   );
 };
-
-export default VoiceGuideProvider;
