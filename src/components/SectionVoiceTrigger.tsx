@@ -13,34 +13,32 @@ const SectionVoiceTrigger = ({ sectionId, message, children }: SectionVoiceTrigg
   const hasTriggered = useRef(false);
 
   useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
+    const handleScroll = () => {
+      if (!ref.current || hasTriggered.current) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !hasTriggered.current) {
-          hasTriggered.current = true;
-          setTimeout(() => {
-            playSectionGuide(sectionId, message);
-          }, 400);
-        }
-      },
-      {
-        root: null,
-        threshold: 0.45,
+      const rect = ref.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+
+      // Trigger jab section ka center viewport me ho
+      if (rect.top <= windowHeight * 0.5 && rect.bottom >= windowHeight * 0.5) {
+        hasTriggered.current = true;
+        playSectionGuide(sectionId, message);
       }
-    );
+    };
 
-    observer.observe(element);
+    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleScroll);
 
-    return () => observer.disconnect();
+    // Page load me bhi check karo
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
   }, [sectionId, message, playSectionGuide]);
 
-  return (
-    <div ref={ref} className="relative pointer-events-auto">
-      {children}
-    </div>
-  );
+  return <div ref={ref}>{children}</div>;
 };
 
 export default SectionVoiceTrigger;
