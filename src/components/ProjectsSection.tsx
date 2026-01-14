@@ -15,7 +15,6 @@ const projects = [
     description: 'AI-powered tool that generates optimized prompts for various AI models, helping users get better results from their AI interactions.',
     techStack: ['React', 'TypeScript', 'AI/ML', 'Tailwind CSS'],
     liveUrl: 'https://prompt-perfect-pro.vercel.app/',
-    githubUrl: 'https://github.com/neetesh1541/prompt-perfect-pro',
     image: projectPromptGenerator,
   },
   {
@@ -23,7 +22,6 @@ const projects = [
     description: 'Interactive chess game with AI opponent, move validation, and a sleek modern interface for an engaging gaming experience.',
     techStack: ['React', 'TypeScript', 'Game Logic', 'CSS'],
     liveUrl: 'https://chess-game-iota-eight.vercel.app/',
-    githubUrl: 'https://github.com/neetesh1541/chess-game',
     image: projectChess,
   },
   {
@@ -31,7 +29,6 @@ const projects = [
     description: 'Food ordering platform connecting home chefs with customers, featuring 5th position in Startup Hackathon.',
     techStack: ['React', 'Node.js', 'Database', 'Payment Integration'],
     liveUrl: 'https://mummy-meals-connect.vercel.app/',
-    githubUrl: 'https://github.com/neetesh1541/mummy-meals',
     image: projectMummyMeals,
   },
   {
@@ -39,7 +36,6 @@ const projects = [
     description: 'Comprehensive interview preparation platform with curated questions, tips, and practice resources for tech interviews.',
     techStack: ['React', 'AI Integration', 'Tailwind', 'Content Management'],
     liveUrl: 'https://neeteshinterview.vercel.app/',
-    githubUrl: 'https://github.com/neetesh1541/interview-prep',
     image: projectInterview,
   },
   {
@@ -47,7 +43,6 @@ const projects = [
     description: 'Official website for HackLoop Community - a platform for developers to learn, collaborate, and build amazing projects together.',
     techStack: ['React', 'Next.js', 'Community Features', 'Events'],
     liveUrl: 'https://www.hackloop.me',
-    githubUrl: 'https://github.com/neetesh1541/hackloop',
     image: projectHackloop,
   },
   {
@@ -55,10 +50,11 @@ const projects = [
     description: 'Satellite and space debris tracking platform that provides real-time orbital data, collision predictions, and comprehensive information about space objects and planets.',
     techStack: ['React', 'TypeScript', 'Space API', 'Data Visualization'],
     liveUrl: 'https://space-shield.vercel.app/',
-    githubUrl: 'https://github.com/neetesh1541/space-shield',
     image: projectSpaceShield,
   },
 ];
+
+const GITHUB_PROFILE = 'https://github.com/Neetesh1541';
 
 const ProjectsSection = () => {
   const ref = useRef(null);
@@ -141,7 +137,7 @@ const ProjectsSection = () => {
                     Live Demo
                   </a>
                   <a
-                    href={project.githubUrl}
+                    href={GITHUB_PROFILE}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-2.5 rounded-lg border border-border hover:border-primary/50 transition-colors hover:scale-105 active:scale-95"
