@@ -20,11 +20,7 @@ const SectionVoiceTrigger = ({ sectionId, message, children }: SectionVoiceTrigg
   useEffect(() => {
     if (isInView && !hasTriggered.current) {
       hasTriggered.current = true;
-      // Small delay before playing section guide
-      const timer = setTimeout(() => {
-        playSectionGuide(sectionId, message);
-      }, 500);
-      return () => clearTimeout(timer);
+      playSectionGuide(sectionId, message);
     }
   }, [isInView, sectionId, message, playSectionGuide]);
 
