@@ -32,7 +32,7 @@ const Footer = () => {
           {/* Social Links */}
           <div className="flex items-center gap-4">
             {[
-              { icon: Github, href: 'https://github.com/neetesh1541', label: 'GitHub' },
+              { icon: Github, href: 'https://github.com/Neetesh1541', label: 'GitHub' },
               { icon: Linkedin, href: 'https://in.linkedin.com/in/neetesh-kumar-846616287', label: 'LinkedIn' },
               { icon: Mail, href: 'mailto:neeteshk1104@gmail.com', label: 'Email' },
             ].map(({ icon: Icon, href, label }) => (
