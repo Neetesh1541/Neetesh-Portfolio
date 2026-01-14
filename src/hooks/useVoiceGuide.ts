@@ -102,7 +102,16 @@ export const useVoiceGuide = () => {
       );
 
       if (!response.ok) {
-        throw new Error(`TTS request failed: ${response.status}`);
+        // Silently handle API errors (e.g., quota exceeded)
+        setState(prev => ({ ...prev, isSpeaking: false, isGlowing: false }));
+        return;
+      }
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType?.includes('audio')) {
+        // Response is not audio (likely an error JSON)
+        setState(prev => ({ ...prev, isSpeaking: false, isGlowing: false }));
+        return;
       }
 
       const audioBlob = await response.blob();
@@ -128,7 +137,7 @@ export const useVoiceGuide = () => {
       
       await audio.play();
     } catch (error) {
-      console.error('Voice guide error:', error);
+      // Silently fail - voice is a nice-to-have feature
       setState(prev => ({ ...prev, isSpeaking: false, isGlowing: false }));
     }
   }, [state.isEnabled]);
