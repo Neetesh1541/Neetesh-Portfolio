@@ -1,40 +1,28 @@
-import { useEffect, useRef } from "react";
-import { useVoiceGuideContext } from "./VoiceGuideProvider";
+import { useEffect, useRef } from 'react';
+import { useInView } from 'framer-motion';
+import { useVoiceGuideContext } from './VoiceGuideProvider';
 
-interface Props {
+interface SectionVoiceTriggerProps {
   sectionId: string;
   message: string;
   children: React.ReactNode;
 }
 
-const SectionVoiceTrigger = ({ sectionId, message, children }: Props) => {
+const SectionVoiceTrigger = ({ sectionId, message, children }: SectionVoiceTriggerProps) => {
   const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { 
+    margin: "-30% 0px -30% 0px",
+    once: true 
+  });
   const { playSectionGuide } = useVoiceGuideContext();
-  const hasPlayed = useRef(false);
+  const hasTriggered = useRef(false);
 
   useEffect(() => {
-    const onScroll = () => {
-      if (!ref.current || hasPlayed.current) return;
-      const rect = ref.current.getBoundingClientRect();
-      const middle = window.innerHeight / 2;
-
-      if (rect.top < middle && rect.bottom > middle) {
-        hasPlayed.current = true;
-        playSectionGuide(sectionId, message);
-      }
-    };
-
-    window.addEventListener("scroll", onScroll);
-    window.addEventListener("resize", onScroll);
-
-    // check once on load
-    onScroll();
-
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, [sectionId, message, playSectionGuide]);
+    if (isInView && !hasTriggered.current) {
+      hasTriggered.current = true;
+      playSectionGuide(sectionId, message);
+    }
+  }, [isInView, sectionId, message, playSectionGuide]);
 
   return <div ref={ref}>{children}</div>;
 };
