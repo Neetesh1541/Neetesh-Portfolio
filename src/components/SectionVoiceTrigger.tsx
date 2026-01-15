@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
-import { useInView } from 'framer-motion';
-import { useVoiceGuideContext } from './VoiceGuideProvider';
+import { useEffect, useRef } from "react";
+import { useInView } from "framer-motion";
+import { useVoiceGuideContext } from "./VoiceGuideProvider";
 
 interface Props {
   sectionId: string;
@@ -12,19 +12,16 @@ const SectionVoiceTrigger = ({ sectionId, message, children }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
   const triggered = useRef(false);
 
-  const { playSectionGuide, greetingDone } = useVoiceGuideContext();
+  const { playSectionGuide } = useVoiceGuideContext();
 
-  const isInView = useInView(ref, {
-    margin: "-30% 0px -30% 0px",
-    once: true,
-  });
+  const inView = useInView(ref, { margin: "-40% 0px -40% 0px" });
 
   useEffect(() => {
-    if (isInView && greetingDone && !triggered.current) {
+    if (inView && !triggered.current) {
       triggered.current = true;
       playSectionGuide(sectionId, message);
     }
-  }, [isInView, greetingDone, sectionId, message, playSectionGuide]);
+  }, [inView, playSectionGuide, sectionId, message]);
 
   return <div ref={ref}>{children}</div>;
 };
