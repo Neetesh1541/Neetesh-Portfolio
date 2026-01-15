@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import ParticleBackground from '@/components/ParticleBackground';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
@@ -13,8 +14,20 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import LoadingScreen from '@/components/LoadingScreen';
 import ScrollReveal from '@/components/ScrollReveal';
 import ScrollToTop from '@/components/ScrollToTop';
+import VoiceToggle from '@/components/VoiceToggle';
+import { useVoiceGuide } from '@/hooks/useVoiceGuide';
 
 const Index = () => {
+  const { isEnabled, isSpeaking, isGlowing, toggleVoice, playGreeting } = useVoiceGuide();
+
+  // Play greeting after a short delay when voice is first enabled
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      playGreeting();
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [playGreeting]);
+
   return (
     <ThemeProvider>
       <LoadingScreen />
@@ -55,6 +68,12 @@ const Index = () => {
         <Footer />
       </div>
       <ScrollToTop />
+      <VoiceToggle
+        isEnabled={isEnabled}
+        isSpeaking={isSpeaking}
+        isGlowing={isGlowing}
+        onToggle={toggleVoice}
+      />
     </ThemeProvider>
   );
 };
