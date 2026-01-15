@@ -4,7 +4,7 @@ import { ExternalLink, Github, Sparkles } from 'lucide-react';
 import projectPromptGenerator from '@/assets/project-prompt-new.jpg';
 import projectChess from '@/assets/project-chess.jpg';
 import projectMummyMeals from '@/assets/project-mummy-meals.jpg';
-import projectInterview from '@/assets/project-interview-new.jpg';
+import projectBillora from '@/assets/project-billora.jpg';
 import projectHackloop from '@/assets/project-hackloop.jpg';
 import projectSpaceShield from '@/assets/project-space-shield.jpg';
 
@@ -31,11 +31,11 @@ const projects = [
     image: projectMummyMeals,
   },
   {
-    title: 'Interview Prep Helper',
-    description: 'Comprehensive interview preparation platform with curated questions, tips, and practice resources for tech interviews.',
-    techStack: ['React', 'AI Integration', 'Tailwind', 'Content Management'],
-    liveUrl: 'https://neeteshinterview.vercel.app/',
-    image: projectInterview,
+    title: 'Billora',
+    description: 'Smart billing application that transforms raw data into professional invoices and bills with analytics, tracking, and easy export features.',
+    techStack: ['React', 'TypeScript', 'Data Processing', 'PDF Generation'],
+    liveUrl: 'https://billora-sparkle.vercel.app/',
+    image: projectBillora,
   },
   {
     title: 'HackLoop Moments',
