@@ -81,7 +81,47 @@ export const useVoiceGuide = () => {
     });
   }, []);
 
-  // Speak text using ElevenLabs
+  // Fallback to browser speech synthesis
+  const speakWithBrowserTTS = useCallback((text: string): Promise<void> => {
+    return new Promise((resolve) => {
+      if (!window.speechSynthesis) {
+        resolve();
+        return;
+      }
+
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.rate = 1;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+
+      // Try to get a good voice
+      const voices = window.speechSynthesis.getVoices();
+      const preferredVoice = voices.find(v => 
+        v.name.includes('Google') || v.name.includes('Microsoft') || v.lang.startsWith('en')
+      );
+      if (preferredVoice) {
+        utterance.voice = preferredVoice;
+      }
+
+      utterance.onend = () => {
+        setState(prev => ({ ...prev, isSpeaking: false, isGlowing: false }));
+        resolve();
+      };
+
+      utterance.onerror = () => {
+        setState(prev => ({ ...prev, isSpeaking: false, isGlowing: false }));
+        resolve();
+      };
+
+      window.speechSynthesis.speak(utterance);
+    });
+  }, []);
+
+  // Speak text using ElevenLabs with browser fallback
   const speak = useCallback(async (text: string): Promise<void> => {
     if (!state.isEnabled) return;
 
@@ -102,15 +142,16 @@ export const useVoiceGuide = () => {
       );
 
       if (!response.ok) {
-        // Silently handle API errors (e.g., quota exceeded)
-        setState(prev => ({ ...prev, isSpeaking: false, isGlowing: false }));
+        // Fallback to browser TTS
+        console.warn('ElevenLabs API unavailable, using browser speech synthesis');
+        await speakWithBrowserTTS(text);
         return;
       }
 
       const contentType = response.headers.get('content-type');
       if (!contentType?.includes('audio')) {
-        // Response is not audio (likely an error JSON)
-        setState(prev => ({ ...prev, isSpeaking: false, isGlowing: false }));
+        // Response is not audio, fallback to browser TTS
+        await speakWithBrowserTTS(text);
         return;
       }
 
@@ -137,10 +178,11 @@ export const useVoiceGuide = () => {
       
       await audio.play();
     } catch (error) {
-      // Silently fail - voice is a nice-to-have feature
-      setState(prev => ({ ...prev, isSpeaking: false, isGlowing: false }));
+      // Fallback to browser TTS on any error
+      console.warn('ElevenLabs failed, using browser speech synthesis');
+      await speakWithBrowserTTS(text);
     }
-  }, [state.isEnabled]);
+  }, [state.isEnabled, speakWithBrowserTTS]);
 
   // Play greeting based on time
   const playGreeting = useCallback(async () => {
