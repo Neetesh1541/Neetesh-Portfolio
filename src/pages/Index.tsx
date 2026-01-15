@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback } from 'react';
 import ParticleBackground from '@/components/ParticleBackground';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
@@ -20,13 +20,16 @@ import { useVoiceGuide } from '@/hooks/useVoiceGuide';
 const Index = () => {
   const { isEnabled, isSpeaking, isGlowing, toggleVoice, playGreeting } = useVoiceGuide();
 
-  // Play greeting after a short delay when voice is first enabled
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      playGreeting();
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, [playGreeting]);
+  // Start voice only from a user gesture (browser autoplay policies)
+  const handleToggleVoice = useCallback(() => {
+    const wasEnabled = isEnabled;
+    toggleVoice();
+
+    // If user just turned it ON, play greeting right away (still within click gesture)
+    if (!wasEnabled) {
+      void playGreeting();
+    }
+  }, [isEnabled, toggleVoice, playGreeting]);
 
   return (
     <ThemeProvider>
@@ -72,7 +75,7 @@ const Index = () => {
         isEnabled={isEnabled}
         isSpeaking={isSpeaking}
         isGlowing={isGlowing}
-        onToggle={toggleVoice}
+        onToggle={handleToggleVoice}
       />
     </ThemeProvider>
   );
