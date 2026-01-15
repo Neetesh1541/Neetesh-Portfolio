@@ -22,6 +22,12 @@ export const useVoiceGuide = () => {
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const sessionId = useRef<string>('');
+  const stateRef = useRef(state);
+  
+  // Keep ref in sync with state
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
 
   // Initialize from localStorage
   useEffect(() => {
@@ -77,6 +83,11 @@ export const useVoiceGuide = () => {
         audioRef.current = null;
       }
       
+      // Stop browser speech too
+      if (!newEnabled && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      
       return { ...prev, isEnabled: newEnabled, isSpeaking: false, isGlowing: false };
     });
   }, []);
@@ -85,6 +96,7 @@ export const useVoiceGuide = () => {
   const speakWithBrowserTTS = useCallback((text: string): Promise<void> => {
     return new Promise((resolve) => {
       if (!window.speechSynthesis) {
+        setState(prev => ({ ...prev, isSpeaking: false, isGlowing: false }));
         resolve();
         return;
       }
@@ -123,7 +135,7 @@ export const useVoiceGuide = () => {
 
   // Speak text using ElevenLabs with browser fallback
   const speak = useCallback(async (text: string): Promise<void> => {
-    if (!state.isEnabled) return;
+    if (!stateRef.current.isEnabled) return;
 
     try {
       setState(prev => ({ ...prev, isSpeaking: true, isGlowing: true }));
@@ -182,11 +194,11 @@ export const useVoiceGuide = () => {
       console.warn('ElevenLabs failed, using browser speech synthesis');
       await speakWithBrowserTTS(text);
     }
-  }, [state.isEnabled, speakWithBrowserTTS]);
+  }, [speakWithBrowserTTS]);
 
   // Play greeting based on time
   const playGreeting = useCallback(async () => {
-    if (state.hasPlayedGreeting || !state.isEnabled) return;
+    if (stateRef.current.hasPlayedGreeting || !stateRef.current.isEnabled) return;
 
     const hour = new Date().getHours();
     let greeting: string;
@@ -204,17 +216,17 @@ export const useVoiceGuide = () => {
     const fullGreeting = `${greeting} I'm a full stack developer and AI enthusiast who loves building intelligent products and meaningful experiences. Feel free to explore my work. Let's build something amazing together.`;
 
     setState(prev => {
-      const updated = { ...prev, hasPlayedGreeting: true };
       saveSession({ hasPlayedGreeting: true });
-      return updated;
+      return { ...prev, hasPlayedGreeting: true };
     });
 
     await speak(fullGreeting);
-  }, [state.hasPlayedGreeting, state.isEnabled, speak, saveSession]);
+  }, [speak, saveSession]);
 
   // Play section guide
   const playSectionGuide = useCallback(async (sectionId: string, message: string) => {
-    if (state.playedSections.has(sectionId) || !state.isEnabled || state.isSpeaking) return;
+    const currentState = stateRef.current;
+    if (currentState.playedSections.has(sectionId) || !currentState.isEnabled || currentState.isSpeaking) return;
 
     setState(prev => {
       const newPlayedSections = new Set(prev.playedSections);
@@ -224,7 +236,7 @@ export const useVoiceGuide = () => {
     });
 
     await speak(message);
-  }, [state.playedSections, state.isEnabled, state.isSpeaking, speak, saveSession]);
+  }, [speak, saveSession]);
 
   return {
     isEnabled: state.isEnabled,
