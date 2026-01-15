@@ -1,31 +1,30 @@
 import { useEffect, useRef } from 'react';
 import { useInView } from 'framer-motion';
+import { useVoiceGuideContext } from './VoiceGuideProvider';
 
-interface SectionVoiceTriggerProps {
+interface Props {
   sectionId: string;
   message: string;
   children: React.ReactNode;
-  onTrigger: (sectionId: string, message: string) => void;
 }
 
-const SectionVoiceTrigger = ({ sectionId, message, children, onTrigger }: SectionVoiceTriggerProps) => {
+const SectionVoiceTrigger = ({ sectionId, message, children }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { 
-    margin: "-40% 0px -40% 0px",
-    once: true 
+  const triggered = useRef(false);
+
+  const { playSectionGuide, greetingDone } = useVoiceGuideContext();
+
+  const isInView = useInView(ref, {
+    margin: "-30% 0px -30% 0px",
+    once: true,
   });
-  const hasTriggered = useRef(false);
 
   useEffect(() => {
-    if (isInView && !hasTriggered.current) {
-      hasTriggered.current = true;
-      // Small delay to let the section fully appear
-      const timer = setTimeout(() => {
-        onTrigger(sectionId, message);
-      }, 500);
-      return () => clearTimeout(timer);
+    if (isInView && greetingDone && !triggered.current) {
+      triggered.current = true;
+      playSectionGuide(sectionId, message);
     }
-  }, [isInView, sectionId, message, onTrigger]);
+  }, [isInView, greetingDone, sectionId, message, playSectionGuide]);
 
   return <div ref={ref}>{children}</div>;
 };
