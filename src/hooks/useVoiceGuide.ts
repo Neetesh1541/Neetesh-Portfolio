@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { toast } from '@/hooks/use-toast';
 
 const VOICE_SESSION_KEY = 'portfolio_voice_session';
 const VOICE_ENABLED_KEY = 'portfolio_voice_enabled';
@@ -13,7 +14,7 @@ interface VoiceState {
 
 export const useVoiceGuide = () => {
   const [state, setState] = useState<VoiceState>({
-    isEnabled: true,
+    isEnabled: false, // Start disabled - user must click to enable
     isSpeaking: false,
     isGlowing: false,
     hasPlayedGreeting: false,
@@ -23,6 +24,7 @@ export const useVoiceGuide = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const sessionId = useRef<string>('');
   const stateRef = useRef(state);
+  const isInitialized = useRef(false);
   
   // Keep ref in sync with state
   useEffect(() => {
@@ -54,6 +56,7 @@ export const useVoiceGuide = () => {
         playedSections: [],
       }));
     }
+    isInitialized.current = true;
   }, []);
 
   // Save session state
@@ -73,32 +76,49 @@ export const useVoiceGuide = () => {
 
   // Toggle voice enabled
   const toggleVoice = useCallback(() => {
-    setState(prev => {
-      const newEnabled = !prev.isEnabled;
-      localStorage.setItem(VOICE_ENABLED_KEY, String(newEnabled));
-      
-      // Stop any playing audio if disabling
-      if (!newEnabled && audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-      
-      // Stop browser speech too
-      if (!newEnabled && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
-      
-      return { ...prev, isEnabled: newEnabled, isSpeaking: false, isGlowing: false };
+    const newEnabled = !stateRef.current.isEnabled;
+    localStorage.setItem(VOICE_ENABLED_KEY, String(newEnabled));
+    
+    // Stop any playing audio if disabling
+    if (!newEnabled && audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    
+    // Stop browser speech too
+    if (!newEnabled && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    
+    setState(prev => ({ ...prev, isEnabled: newEnabled, isSpeaking: false, isGlowing: false }));
+    
+    // Show toast
+    toast({
+      title: newEnabled ? "🔊 Voice Guide Enabled" : "🔇 Voice Guide Disabled",
+      description: newEnabled 
+        ? "I'll narrate as you explore the portfolio" 
+        : "Voice narration turned off",
+      duration: 2000,
     });
+    
+    return newEnabled;
   }, []);
 
   // Fallback to browser speech synthesis
-  const speakWithBrowserTTS = useCallback((text: string): Promise<void> => {
+  const speakWithBrowserTTS = useCallback((text: string, showFallbackToast: boolean = true): Promise<void> => {
     return new Promise((resolve) => {
       if (!window.speechSynthesis) {
         setState(prev => ({ ...prev, isSpeaking: false, isGlowing: false }));
         resolve();
         return;
+      }
+
+      if (showFallbackToast) {
+        toast({
+          title: "🎙️ Using Browser Voice",
+          description: "Premium voice unavailable, using browser synthesis",
+          duration: 2000,
+        });
       }
 
       // Cancel any ongoing speech
@@ -155,15 +175,14 @@ export const useVoiceGuide = () => {
 
       if (!response.ok) {
         // Fallback to browser TTS
-        console.warn('ElevenLabs API unavailable, using browser speech synthesis');
-        await speakWithBrowserTTS(text);
+        await speakWithBrowserTTS(text, true);
         return;
       }
 
       const contentType = response.headers.get('content-type');
       if (!contentType?.includes('audio')) {
         // Response is not audio, fallback to browser TTS
-        await speakWithBrowserTTS(text);
+        await speakWithBrowserTTS(text, true);
         return;
       }
 
@@ -191,8 +210,7 @@ export const useVoiceGuide = () => {
       await audio.play();
     } catch (error) {
       // Fallback to browser TTS on any error
-      console.warn('ElevenLabs failed, using browser speech synthesis');
-      await speakWithBrowserTTS(text);
+      await speakWithBrowserTTS(text, true);
     }
   }, [speakWithBrowserTTS]);
 
@@ -204,16 +222,16 @@ export const useVoiceGuide = () => {
     let greeting: string;
 
     if (hour >= 5 && hour < 12) {
-      greeting = "Good morning. I'm Neetesh. Welcome to my portfolio.";
+      greeting = "Good morning! I'm Neetesh.";
     } else if (hour >= 12 && hour < 17) {
-      greeting = "Good afternoon. I'm Neetesh. Welcome to my portfolio.";
+      greeting = "Good afternoon! I'm Neetesh.";
     } else if (hour >= 17 && hour < 21) {
-      greeting = "Good evening. I'm Neetesh. Welcome to my portfolio.";
+      greeting = "Good evening! I'm Neetesh.";
     } else {
-      greeting = "Good evening. Hope you're having a great night. I'm Neetesh. Welcome to my portfolio.";
+      greeting = "Hey there! I'm Neetesh.";
     }
 
-    const fullGreeting = `${greeting} I'm a full stack developer and AI enthusiast who loves building intelligent products and meaningful experiences. Feel free to explore my work. Let's build something amazing together.`;
+    const fullGreeting = `${greeting} Welcome to my portfolio. I'm a full stack developer who loves building intelligent products. Feel free to explore!`;
 
     setState(prev => {
       saveSession({ hasPlayedGreeting: true });
