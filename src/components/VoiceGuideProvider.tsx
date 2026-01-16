@@ -168,13 +168,19 @@ export const VoiceGuideProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         });
       });
     } catch {
+      // Ensure we unlock future speech even if the backend TTS fails (quota/key issues)
+      speakingRef.current = false;
+      setIsSpeaking(false);
+      setIsGlowing(false);
+
       if (showFallbackToast) {
         toast({
-          title: "🔊 Using Browser Voice",
-          description: "Switched to browser's built-in voice",
-          duration: 2000,
+          title: 'Using Browser Voice',
+          description: 'Voice credits are exhausted, switching to built-in voice.',
+          duration: 2500,
         });
       }
+
       await speakWithBrowserTTS(text);
     }
   }, [speakWithBrowserTTS]);
@@ -186,23 +192,30 @@ export const VoiceGuideProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     localStorage.setItem(VOICE_ENABLED_KEY, String(newEnabled));
 
     if (!newEnabled) {
+      // Stop any current speech
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
       setIsGlowing(false);
       speakingRef.current = false;
+
+      // Allow greeting + section guides to trigger again next time user enables voice
+      hasPlayedGreeting.current = false;
+      playedSections.current.clear();
+      saveSession();
     }
 
     toast({
-      title: newEnabled ? "🔊 Voice Guide Enabled" : "🔇 Voice Guide Disabled",
+      title: newEnabled ? "Voice Guide Enabled" : "Voice Guide Disabled",
       description: newEnabled ? "I'll narrate as you explore" : "Voice narration turned off",
       duration: 2000,
     });
 
     return newEnabled;
-  }, []);
+  }, [saveSession]);
 
   const playGreeting = useCallback(async () => {
-    if (hasPlayedGreeting.current || !enabledRef.current) return;
+    // Greeting should play every time the user enables voice (user expects it on toggle)
+    if (!enabledRef.current) return;
 
     const hour = new Date().getHours();
     const greeting =
@@ -210,7 +223,7 @@ export const VoiceGuideProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       hour < 17 ? "Good afternoon!" :
       hour < 21 ? "Good evening!" : "Hey there!";
 
-    const fullGreeting = `${greeting} I'm Neetesh Kumar. Welcome to my portfolio. Feel free to explore my work.`;
+    const fullGreeting = `${greeting} I'm Neetesh Kumar. Welcome to my portfolio.`;
 
     hasPlayedGreeting.current = true;
     saveSession();
