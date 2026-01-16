@@ -1,65 +1,242 @@
-import { createContext, useContext, useEffect, useRef, useState, useCallback } from "react";
+import { createContext, useContext, useRef, useState, useCallback, useEffect } from "react";
+import { toast } from "@/hooks/use-toast";
+
+const VOICE_ENABLED_KEY = 'portfolio_voice_enabled';
+const VOICE_SESSION_KEY = 'portfolio_voice_session';
 
 interface VoiceGuideContextProps {
-  playSectionGuide: (id: string, text: string) => void;
+  isEnabled: boolean;
+  isSpeaking: boolean;
+  isGlowing: boolean;
+  toggleVoice: () => boolean;
+  playGreeting: () => Promise<void>;
+  playSectionGuide: (sectionId: string, message: string) => void;
 }
 
 const VoiceGuideContext = createContext<VoiceGuideContextProps>({
+  isEnabled: false,
+  isSpeaking: false,
+  isGlowing: false,
+  toggleVoice: () => false,
+  playGreeting: async () => {},
   playSectionGuide: () => {},
 });
 
 export const useVoiceGuideContext = () => useContext(VoiceGuideContext);
 
 export const VoiceGuideProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const hasGreeted = useRef(false);
-  const speaking = useRef(false);
+  const [isEnabled, setIsEnabled] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isGlowing, setIsGlowing] = useState(false);
+  
+  const hasPlayedGreeting = useRef(false);
+  const playedSections = useRef(new Set<string>());
+  const speakingRef = useRef(false);
+  const enabledRef = useRef(false);
 
-  const speak = useCallback((text: string) => {
-    if (!window.speechSynthesis) return;
+  // Load saved preference
+  useEffect(() => {
+    const storedEnabled = localStorage.getItem(VOICE_ENABLED_KEY);
+    if (storedEnabled === 'true') {
+      setIsEnabled(true);
+      enabledRef.current = true;
+    }
 
-    window.speechSynthesis.cancel();
-
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = "en-US";
-    utter.rate = 1;
-    utter.pitch = 1;
-
-    utter.onstart = () => (speaking.current = true);
-    utter.onend = () => (speaking.current = false);
-
-    window.speechSynthesis.speak(utter);
+    const storedSession = sessionStorage.getItem(VOICE_SESSION_KEY);
+    if (storedSession) {
+      try {
+        const session = JSON.parse(storedSession);
+        hasPlayedGreeting.current = session.hasPlayedGreeting || false;
+        playedSections.current = new Set(session.playedSections || []);
+      } catch {
+        // Ignore parse errors
+      }
+    }
   }, []);
 
-  // Greeting — only once after first user action
-  useEffect(() => {
-    const unlock = () => {
-      if (hasGreeted.current) return;
-      hasGreeted.current = true;
+  const saveSession = useCallback(() => {
+    sessionStorage.setItem(VOICE_SESSION_KEY, JSON.stringify({
+      hasPlayedGreeting: hasPlayedGreeting.current,
+      playedSections: Array.from(playedSections.current),
+    }));
+  }, []);
 
-      const hour = new Date().getHours();
-      let greeting = "Hello";
+  const speakWithBrowserTTS = useCallback((text: string): Promise<void> => {
+    return new Promise((resolve) => {
+      if (!window.speechSynthesis) {
+        setIsSpeaking(false);
+        setIsGlowing(false);
+        speakingRef.current = false;
+        resolve();
+        return;
+      }
 
-      if (hour < 12) greeting = "Good morning";
-      else if (hour < 18) greeting = "Good afternoon";
-      else greeting = "Good evening";
+      window.speechSynthesis.cancel();
 
-      speak(`${greeting}! I am Neetesh, welcome to my portfolio.`);
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.rate = 1;
+      utterance.pitch = 1;
+      utterance.volume = 1;
 
-      document.removeEventListener("click", unlock);
-      document.removeEventListener("keydown", unlock);
-    };
+      // Try to get a better voice
+      const loadVoices = () => {
+        const voices = window.speechSynthesis.getVoices();
+        const preferredVoice = voices.find(v => 
+          v.name.includes('Google') || 
+          v.name.includes('Microsoft') || 
+          (v.lang.startsWith('en') && v.name.includes('Male'))
+        ) || voices.find(v => v.lang.startsWith('en'));
+        
+        if (preferredVoice) utterance.voice = preferredVoice;
+      };
 
-    document.addEventListener("click", unlock);
-    document.addEventListener("keydown", unlock);
-  }, [speak]);
+      if (window.speechSynthesis.getVoices().length === 0) {
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+      } else {
+        loadVoices();
+      }
 
-  const playSectionGuide = useCallback((id: string, text: string) => {
-    if (!hasGreeted.current || speaking.current) return;
-    speak(text);
-  }, [speak]);
+      utterance.onend = () => {
+        setIsSpeaking(false);
+        setIsGlowing(false);
+        speakingRef.current = false;
+        resolve();
+      };
+
+      utterance.onerror = () => {
+        setIsSpeaking(false);
+        setIsGlowing(false);
+        speakingRef.current = false;
+        resolve();
+      };
+
+      window.speechSynthesis.speak(utterance);
+    });
+  }, []);
+
+  const speak = useCallback(async (text: string, showFallbackToast = false) => {
+    if (!enabledRef.current || speakingRef.current) return;
+
+    speakingRef.current = true;
+    setIsSpeaking(true);
+    setIsGlowing(true);
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ text }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('TTS API failed');
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+
+      await new Promise<void>((resolve) => {
+        audio.onended = () => {
+          setIsSpeaking(false);
+          setIsGlowing(false);
+          speakingRef.current = false;
+          URL.revokeObjectURL(audioUrl);
+          resolve();
+        };
+
+        audio.onerror = () => {
+          setIsSpeaking(false);
+          setIsGlowing(false);
+          speakingRef.current = false;
+          URL.revokeObjectURL(audioUrl);
+          resolve();
+        };
+
+        audio.play().catch(() => {
+          // If autoplay fails, fall back to browser TTS
+          speakWithBrowserTTS(text);
+          resolve();
+        });
+      });
+    } catch {
+      if (showFallbackToast) {
+        toast({
+          title: "🔊 Using Browser Voice",
+          description: "Switched to browser's built-in voice",
+          duration: 2000,
+        });
+      }
+      await speakWithBrowserTTS(text);
+    }
+  }, [speakWithBrowserTTS]);
+
+  const toggleVoice = useCallback(() => {
+    const newEnabled = !enabledRef.current;
+    enabledRef.current = newEnabled;
+    setIsEnabled(newEnabled);
+    localStorage.setItem(VOICE_ENABLED_KEY, String(newEnabled));
+
+    if (!newEnabled) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      setIsGlowing(false);
+      speakingRef.current = false;
+    }
+
+    toast({
+      title: newEnabled ? "🔊 Voice Guide Enabled" : "🔇 Voice Guide Disabled",
+      description: newEnabled ? "I'll narrate as you explore" : "Voice narration turned off",
+      duration: 2000,
+    });
+
+    return newEnabled;
+  }, []);
+
+  const playGreeting = useCallback(async () => {
+    if (hasPlayedGreeting.current || !enabledRef.current) return;
+
+    const hour = new Date().getHours();
+    const greeting =
+      hour < 12 ? "Good morning!" :
+      hour < 17 ? "Good afternoon!" :
+      hour < 21 ? "Good evening!" : "Hey there!";
+
+    const fullGreeting = `${greeting} I'm Neetesh Kumar. Welcome to my portfolio. Feel free to explore my work.`;
+
+    hasPlayedGreeting.current = true;
+    saveSession();
+
+    await speak(fullGreeting, true);
+  }, [speak, saveSession]);
+
+  const playSectionGuide = useCallback((sectionId: string, message: string) => {
+    if (!enabledRef.current || speakingRef.current) return;
+    if (playedSections.current.has(sectionId)) return;
+
+    playedSections.current.add(sectionId);
+    saveSession();
+
+    speak(message);
+  }, [speak, saveSession]);
 
   return (
-    <VoiceGuideContext.Provider value={{ playSectionGuide }}>
+    <VoiceGuideContext.Provider value={{ 
+      isEnabled, 
+      isSpeaking, 
+      isGlowing, 
+      toggleVoice, 
+      playGreeting,
+      playSectionGuide 
+    }}>
       {children}
     </VoiceGuideContext.Provider>
   );
