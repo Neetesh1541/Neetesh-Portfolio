@@ -14,8 +14,21 @@ const LoadingScreen = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const setSize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    setSize();
+
+    const rootStyles = getComputedStyle(document.documentElement);
+    const hslVar = (name: string) => rootStyles.getPropertyValue(name).trim();
+
+    const colors = [
+      `hsl(${hslVar('--primary')})`,
+      `hsl(${hslVar('--secondary')})`,
+      `hsl(${hslVar('--accent')})`,
+    ];
 
     const particles: Array<{
       x: number;
@@ -27,8 +40,6 @@ const LoadingScreen = () => {
       size: number;
       color: string;
     }> = [];
-
-    const colors = ['#8b5cf6', '#06b6d4', '#ec4899', '#f59e0b', '#10b981'];
     
     // Create particles
     for (let i = 0; i < 150; i++) {
@@ -49,7 +60,7 @@ const LoadingScreen = () => {
     const centerY = canvas.height / 2;
 
     const animate = () => {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       particles.forEach((p) => {
@@ -94,7 +105,7 @@ const LoadingScreen = () => {
             ctx.beginPath();
             ctx.moveTo(x2d, y2d);
             ctx.lineTo(x2d2, y2d2);
-            ctx.strokeStyle = `rgba(139, 92, 246, ${0.2 * (1 - dist / 100)})`;
+            ctx.strokeStyle = `hsla(${hslVar('--primary')}, ${0.22 * (1 - dist / 100)})`;
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
@@ -104,9 +115,14 @@ const LoadingScreen = () => {
       animationId = requestAnimationFrame(animate);
     };
 
+    window.addEventListener('resize', setSize);
+
     animate();
 
-    return () => cancelAnimationFrame(animationId);
+    return () => {
+      window.removeEventListener('resize', setSize);
+      cancelAnimationFrame(animationId);
+    };
   }, []);
 
   useEffect(() => {
@@ -143,7 +159,6 @@ const LoadingScreen = () => {
           <canvas
             ref={canvasRef}
             className="absolute inset-0 w-full h-full"
-            style={{ background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0f0f23 100%)' }}
           />
 
           {/* Rotating 3D Cube */}
@@ -222,7 +237,7 @@ const LoadingScreen = () => {
               }}
               transition={{ duration: 3, repeat: Infinity }}
               style={{
-                backgroundImage: 'linear-gradient(90deg, #8b5cf6, #06b6d4, #ec4899, #8b5cf6)',
+                backgroundImage: `linear-gradient(90deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--accent)), hsl(var(--primary)))`,
                 backgroundSize: '200% 200%',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
@@ -252,7 +267,7 @@ const LoadingScreen = () => {
               <motion.div
                 className="h-full rounded-full"
                 style={{
-                  background: 'linear-gradient(90deg, #8b5cf6, #06b6d4, #ec4899)',
+                  background: 'linear-gradient(90deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--accent)))',
                   backgroundSize: '200% 100%',
                 }}
                 animate={{
@@ -282,7 +297,7 @@ const LoadingScreen = () => {
               style={{
                 left: `${10 + i * 12}%`,
                 top: `${20 + (i % 4) * 20}%`,
-                background: `linear-gradient(135deg, ${['#8b5cf6', '#06b6d4', '#ec4899', '#f59e0b'][i % 4]}, transparent)`,
+                background: `linear-gradient(135deg, ${['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--primary))'][i % 4]}, transparent)`,
               }}
               animate={{
                 y: [0, -40, 0],
