@@ -21,17 +21,20 @@ const LoadingScreen = () => {
     window.addEventListener('resize', setSize);
 
     const rootStyles = getComputedStyle(document.documentElement);
-    const hslRaw = rootStyles.getPropertyValue('--primary').trim();
 
+    // Convert CSS HSL format "h s% l%" to canvas-compatible "hsla(h, s%, l%, a)"
     const toHsla = (hsl: string, alpha: number) => {
-      const clean = hsl.replace(/[^\d\s.%]/g, '');
-      return `hsla(${clean}, ${alpha})`;
+      const parts = hsl.trim().split(/\s+/);
+      if (parts.length >= 3) {
+        return `hsla(${parts[0]}, ${parts[1]}, ${parts[2]}, ${alpha})`;
+      }
+      return `hsla(220, 70%, 50%, ${alpha})`; // fallback
     };
 
     const colors = [
-      toHsla(hslRaw, 1),
-      toHsla(rootStyles.getPropertyValue('--secondary'), 1),
-      toHsla(rootStyles.getPropertyValue('--accent'), 1),
+      toHsla(rootStyles.getPropertyValue('--primary').trim(), 1),
+      toHsla(rootStyles.getPropertyValue('--secondary').trim(), 1),
+      toHsla(rootStyles.getPropertyValue('--accent').trim(), 1),
     ];
 
     const particles = Array.from({ length: 120 }).map(() => ({
