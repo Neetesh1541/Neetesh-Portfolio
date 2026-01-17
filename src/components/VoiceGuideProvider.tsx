@@ -1,5 +1,4 @@
 import { createContext, useContext, useRef, useState, useCallback, useEffect } from "react";
-import { toast } from "@/hooks/use-toast";
 
 const VOICE_ENABLED_KEY = 'portfolio_voice_enabled';
 
@@ -142,13 +141,8 @@ export const VoiceGuideProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           audio.play().catch(() => resolve());
         });
       } catch {
-        // Switch to browser TTS for this session
+        // Switch to browser TTS for this session (silently)
         useBrowserTTS.current = true;
-        toast({
-          title: 'Using Browser Voice',
-          description: 'Premium voice unavailable, using built-in voice.',
-          duration: 3000,
-        });
         await speakWithBrowserTTS(text);
       }
     }
@@ -182,11 +176,7 @@ export const VoiceGuideProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       playedSections.current.clear();
     }
 
-    toast({
-      title: newEnabled ? "Voice Guide Enabled" : "Voice Guide Disabled",
-      description: newEnabled ? "I'll narrate as you explore" : "Voice narration turned off",
-      duration: 2000,
-    });
+    // No toast notification - silent toggle
 
     return newEnabled;
   }, []);
