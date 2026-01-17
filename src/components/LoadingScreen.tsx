@@ -22,19 +22,26 @@ const LoadingScreen = () => {
 
     const rootStyles = getComputedStyle(document.documentElement);
 
-    // Convert CSS HSL format "h s% l%" to canvas-compatible "hsla(h, s%, l%, a)"
-    const toHsla = (hsl: string, alpha: number) => {
-      const parts = hsl.trim().split(/\s+/);
-      if (parts.length >= 3) {
-        return `hsla(${parts[0]}, ${parts[1]}, ${parts[2]}, ${alpha})`;
-      }
-      return `hsla(220, 70%, 50%, ${alpha})`; // fallback
+    // Canvas color parsing can be stricter than CSS. We convert theme HSL tokens to RGBA
+    // using the browser's CSS parser (computedStyle) to guarantee compatibility.
+    const probe = document.createElement('span');
+    probe.style.display = 'none';
+    document.body.appendChild(probe);
+
+    const hslVarToRgba = (varName: string, alpha: number) => {
+      const hsl = rootStyles.getPropertyValue(varName).trim();
+      probe.style.color = `hsl(${hsl})`;
+      const parsed = getComputedStyle(probe).color; // "rgb(r, g, b)" or "rgba(r, g, b, a)"
+      const match = parsed.match(/rgba?\(([^)]+)\)/i);
+      if (!match) return `rgba(255, 255, 255, ${alpha})`;
+      const [r, g, b] = match[1].split(',').map(v => parseFloat(v.trim()));
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     };
 
     const colors = [
-      toHsla(rootStyles.getPropertyValue('--primary').trim(), 1),
-      toHsla(rootStyles.getPropertyValue('--secondary').trim(), 1),
-      toHsla(rootStyles.getPropertyValue('--accent').trim(), 1),
+      hslVarToRgba('--primary', 1),
+      hslVarToRgba('--secondary', 1),
+      hslVarToRgba('--accent', 1),
     ];
 
     const particles = Array.from({ length: 120 }).map(() => ({
@@ -84,6 +91,7 @@ const LoadingScreen = () => {
     return () => {
       cancelAnimationFrame(animationId);
       window.removeEventListener('resize', setSize);
+      probe.remove();
     };
   }, []);
 
