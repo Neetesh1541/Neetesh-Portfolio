@@ -36,48 +36,60 @@ export const VoiceGuideProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Load saved preference (but don't auto-enable to respect browser autoplay policies)
   useEffect(() => {
-    const storedEnabled = localStorage.getItem(VOICE_ENABLED_KEY);
-    if (storedEnabled === 'true') {
-      // We keep preference saved but don't auto-enable; user must click to enable
+    try {
+      const storedEnabled = localStorage.getItem(VOICE_ENABLED_KEY);
+      if (storedEnabled === 'true') {
+        // We keep preference saved but don't auto-enable; user must click to enable
+      }
+    } catch {
+      // Ignore localStorage errors
     }
   }, []);
 
   const speakWithBrowserTTS = useCallback((text: string): Promise<void> => {
     return new Promise((resolve) => {
-      if (!window.speechSynthesis) {
+      try {
+        if (!window.speechSynthesis) {
+          resolve();
+          return;
+        }
+
+        window.speechSynthesis.cancel();
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        utterance.rate = 1;
+        utterance.pitch = 1;
+        utterance.volume = 1;
+
+        const loadVoices = () => {
+          try {
+            const voices = window.speechSynthesis.getVoices();
+            const preferredVoice = voices.find(v => 
+              v.name.includes('Google') || 
+              v.name.includes('Microsoft') || 
+              (v.lang.startsWith('en') && v.name.includes('Male'))
+            ) || voices.find(v => v.lang.startsWith('en'));
+            
+            if (preferredVoice) utterance.voice = preferredVoice;
+          } catch {
+            // Ignore voice loading errors
+          }
+        };
+
+        if (window.speechSynthesis.getVoices().length === 0) {
+          window.speechSynthesis.onvoiceschanged = loadVoices;
+        } else {
+          loadVoices();
+        }
+
+        utterance.onend = () => resolve();
+        utterance.onerror = () => resolve();
+
+        window.speechSynthesis.speak(utterance);
+      } catch {
         resolve();
-        return;
       }
-
-      window.speechSynthesis.cancel();
-
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'en-US';
-      utterance.rate = 1;
-      utterance.pitch = 1;
-      utterance.volume = 1;
-
-      const loadVoices = () => {
-        const voices = window.speechSynthesis.getVoices();
-        const preferredVoice = voices.find(v => 
-          v.name.includes('Google') || 
-          v.name.includes('Microsoft') || 
-          (v.lang.startsWith('en') && v.name.includes('Male'))
-        ) || voices.find(v => v.lang.startsWith('en'));
-        
-        if (preferredVoice) utterance.voice = preferredVoice;
-      };
-
-      if (window.speechSynthesis.getVoices().length === 0) {
-        window.speechSynthesis.onvoiceschanged = loadVoices;
-      } else {
-        loadVoices();
-      }
-
-      utterance.onend = () => resolve();
-      utterance.onerror = () => resolve();
-
-      window.speechSynthesis.speak(utterance);
     });
   }, []);
 
@@ -103,14 +115,21 @@ export const VoiceGuideProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       }
 
       try {
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+        
+        if (!supabaseUrl || !supabaseKey) {
+          throw new Error('Missing Supabase config');
+        }
+
         const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
+          `${supabaseUrl}/functions/v1/elevenlabs-tts`,
           {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`,
             },
             body: JSON.stringify({ text }),
           }
@@ -126,6 +145,10 @@ export const VoiceGuideProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         }
 
         const audioBlob = await response.blob();
+        if (audioBlob.size === 0) {
+          throw new Error('Empty audio blob');
+        }
+        
         const audioUrl = URL.createObjectURL(audioBlob);
         const audio = new Audio(audioUrl);
 
@@ -138,7 +161,10 @@ export const VoiceGuideProvider: React.FC<{ children: React.ReactNode }> = ({ ch
             URL.revokeObjectURL(audioUrl);
             resolve();
           };
-          audio.play().catch(() => resolve());
+          audio.play().catch(() => {
+            URL.revokeObjectURL(audioUrl);
+            resolve();
+          });
         });
       } catch {
         // Switch to browser TTS for this session (silently)
@@ -156,18 +182,32 @@ export const VoiceGuideProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const queueSpeech = useCallback((text: string) => {
     if (!enabledRef.current) return;
     speechQueue.current.push(text);
-    processQueue();
+    // Use setTimeout to avoid potential stack issues
+    setTimeout(() => {
+      processQueue().catch(() => {
+        // Silently handle any queue processing errors
+      });
+    }, 0);
   }, [processQueue]);
 
   const toggleVoice = useCallback(() => {
     const newEnabled = !enabledRef.current;
     enabledRef.current = newEnabled;
     setIsEnabled(newEnabled);
-    localStorage.setItem(VOICE_ENABLED_KEY, String(newEnabled));
+    
+    try {
+      localStorage.setItem(VOICE_ENABLED_KEY, String(newEnabled));
+    } catch {
+      // Ignore localStorage errors
+    }
 
     if (!newEnabled) {
       // Stop everything
-      window.speechSynthesis.cancel();
+      try {
+        window.speechSynthesis?.cancel();
+      } catch {
+        // Ignore speech synthesis errors
+      }
       speechQueue.current = [];
       isProcessingQueue.current = false;
       speakingRef.current = false;
@@ -176,31 +216,37 @@ export const VoiceGuideProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       playedSections.current.clear();
     }
 
-    // No toast notification - silent toggle
-
     return newEnabled;
   }, []);
 
   const playGreeting = useCallback(async () => {
     if (!enabledRef.current) return;
 
-    const hour = new Date().getHours();
-    const greeting =
-      hour < 12 ? "Good morning!" :
-      hour < 17 ? "Good afternoon!" :
-      hour < 21 ? "Good evening!" : "Hey there!";
+    try {
+      const hour = new Date().getHours();
+      const greeting =
+        hour < 12 ? "Good morning!" :
+        hour < 17 ? "Good afternoon!" :
+        hour < 21 ? "Good evening!" : "Hey there!";
 
-    const fullGreeting = `${greeting} I'm Neetesh Kumar. Welcome to my portfolio. Feel free to scroll and explore!`;
+      const fullGreeting = `${greeting} I'm Neetesh Kumar. Welcome to my portfolio. Feel free to scroll and explore!`;
 
-    queueSpeech(fullGreeting);
+      queueSpeech(fullGreeting);
+    } catch {
+      // Silently ignore greeting errors
+    }
   }, [queueSpeech]);
 
   const playSectionGuide = useCallback((sectionId: string, message: string) => {
     if (!enabledRef.current) return;
-    if (playedSections.current.has(sectionId)) return;
-
-    playedSections.current.add(sectionId);
-    queueSpeech(message);
+    
+    try {
+      if (playedSections.current.has(sectionId)) return;
+      playedSections.current.add(sectionId);
+      queueSpeech(message);
+    } catch {
+      // Silently ignore section guide errors
+    }
   }, [queueSpeech]);
 
   return (
