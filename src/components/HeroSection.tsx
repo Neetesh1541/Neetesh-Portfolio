@@ -178,41 +178,41 @@ const HeroSection = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
           >
             <div className="relative">
-              {/* Glow Effect */}
+              {/* Soft radial glow behind the photo (no circle frame) */}
               <motion.div 
-                className="absolute inset-0 bg-gradient-to-r from-primary/50 to-secondary/50 rounded-full blur-3xl"
+                className="absolute inset-0 blur-3xl -z-10"
+                style={{
+                  background: 'radial-gradient(circle at 50% 60%, hsl(263 70% 50% / 0.45), hsl(199 89% 48% / 0.25) 40%, transparent 70%)',
+                }}
                 animate={{ 
-                  opacity: [0.4, 0.6, 0.4],
-                  scale: [1, 1.1, 1],
+                  opacity: [0.5, 0.8, 0.5],
+                  scale: [1, 1.08, 1],
                 }}
                 transition={{ duration: 4, repeat: Infinity }}
               />
-              
-              {/* Rotating Border */}
-              <motion.div
-                className="absolute -inset-3 rounded-full hidden md:block"
-                style={{
-                  background: 'conic-gradient(from 0deg, hsl(199 89% 48%), hsl(263 70% 50%), hsl(199 89% 48%))',
-                }}
-                animate={{ rotate: 360 }}
-                transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+
+              {/* Image - transparent background, no circular frame */}
+              <motion.img
+                src={profilePhoto}
+                alt="Neetesh Kumar"
+                className="relative w-56 h-56 sm:w-72 sm:h-72 md:w-80 md:h-80 lg:w-[26rem] lg:h-[26rem] object-contain drop-shadow-[0_20px_40px_rgba(139,92,246,0.35)]"
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
               />
-              
-              {/* Secondary rotating ring - hidden on mobile */}
+
+              {/* Stats badge - hidden on small mobile */}
               <motion.div
-                className="absolute -inset-6 rounded-full border border-primary/20 hidden md:block"
-                animate={{ rotate: -360 }}
-                transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
-              />
-              
-              {/* Image Container */}
-              <div className="relative w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-full overflow-hidden border-4 border-background">
-                <img
-                  src={profilePhoto}
-                  alt="Neetesh Kumar"
-                  className="w-full h-full object-cover"
-                />
-              </div>
+                className="absolute -bottom-2 right-0 glass-card rounded-xl px-4 py-2 z-10 hidden sm:block"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 1.5 }}
+              >
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-xs text-muted-foreground">Available for hire</span>
+                </div>
+              </motion.div>
+            </div>
 
               {/* Stats badge - hidden on small mobile */}
               <motion.div
