@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
-import { Code2, Cpu, Database, Wrench } from 'lucide-react';
+import { Code2, Cpu, Database, Wrench, BarChart3 } from 'lucide-react';
 import {
   RadarChart,
   PolarGrid,
@@ -39,11 +39,18 @@ const skillCategories = [
     skills: ['Python', 'Flask', 'Django', 'Node.js', 'REST APIs', 'Databases'],
   },
   {
-    title: 'AI/ML',
+    title: 'AI / ML',
     icon: Cpu,
     color: 'from-violet-400 to-purple-500',
     image: skillAi,
-    skills: ['NLP', 'Computer Vision', 'Deep Learning', 'TensorFlow', 'OpenCV', 'ML Models'],
+    skills: ['NLP', 'Computer Vision', 'Deep Learning', 'TensorFlow', 'PyTorch', 'OpenCV', 'LLMs', 'Prompt Engineering'],
+  },
+  {
+    title: 'Data Science',
+    icon: BarChart3,
+    color: 'from-pink-400 to-rose-500',
+    image: skillAi,
+    skills: ['Python', 'Pandas', 'NumPy', 'Scikit-learn', 'Matplotlib', 'Seaborn', 'Jupyter', 'Statistics', 'EDA', 'Data Visualization', 'SQL', 'Power BI'],
   },
   {
     title: 'Tools & More',
@@ -56,9 +63,9 @@ const skillCategories = [
 
 const radarData = [
   { skill: 'React', value: 95, fullMark: 100 },
-  { skill: 'Python', value: 88, fullMark: 100 },
-  { skill: 'AI/ML', value: 82, fullMark: 100 },
-  { skill: 'Node.js', value: 78, fullMark: 100 },
+  { skill: 'Python', value: 90, fullMark: 100 },
+  { skill: 'AI/ML', value: 85, fullMark: 100 },
+  { skill: 'Data Science', value: 82, fullMark: 100 },
   { skill: 'TypeScript', value: 90, fullMark: 100 },
   { skill: 'Database', value: 85, fullMark: 100 },
 ];
@@ -80,8 +87,9 @@ const growthData = [
 
 const proficiencyData = [
   { name: 'React & Frontend', level: 95, color: '#06b6d4' },
-  { name: 'Python & Backend', level: 88, color: '#10b981' },
-  { name: 'AI/ML Technologies', level: 82, color: '#8b5cf6' },
+  { name: 'Python & Backend', level: 90, color: '#10b981' },
+  { name: 'AI/ML Technologies', level: 85, color: '#8b5cf6' },
+  { name: 'Data Science & Analytics', level: 82, color: '#ec4899' },
   { name: 'System Design', level: 78, color: '#f59e0b' },
   { name: 'DevOps & Tools', level: 75, color: '#ef4444' },
 ];
