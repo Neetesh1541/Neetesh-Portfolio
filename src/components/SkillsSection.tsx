@@ -87,8 +87,9 @@ const growthData = [
 
 const proficiencyData = [
   { name: 'React & Frontend', level: 95, color: '#06b6d4' },
-  { name: 'Python & Backend', level: 88, color: '#10b981' },
-  { name: 'AI/ML Technologies', level: 82, color: '#8b5cf6' },
+  { name: 'Python & Backend', level: 90, color: '#10b981' },
+  { name: 'AI/ML Technologies', level: 85, color: '#8b5cf6' },
+  { name: 'Data Science & Analytics', level: 82, color: '#ec4899' },
   { name: 'System Design', level: 78, color: '#f59e0b' },
   { name: 'DevOps & Tools', level: 75, color: '#ef4444' },
 ];
