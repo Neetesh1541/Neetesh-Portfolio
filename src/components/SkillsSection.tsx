@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
-import { Code2, Cpu, Database, Wrench } from 'lucide-react';
+import { Code2, Cpu, Database, Wrench, BarChart3 } from 'lucide-react';
 import {
   RadarChart,
   PolarGrid,
