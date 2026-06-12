@@ -16,6 +16,7 @@ import ScrollReveal from '@/components/ScrollReveal';
 import ScrollToTop from '@/components/ScrollToTop';
 import VoiceToggle from '@/components/VoiceToggle';
 import SectionVoiceTrigger from '@/components/SectionVoiceTrigger';
+import AIChatbot from '@/components/AIChatbot';
 import { VoiceGuideProvider, useVoiceGuideContext } from '@/components/VoiceGuideProvider';
 
 const SECTION_MESSAGES = {
@@ -95,6 +96,7 @@ const IndexContent = () => {
         <Footer />
       </div>
       <ScrollToTop />
+      <AIChatbot />
       <VoiceToggle
         isEnabled={isEnabled}
         isSpeaking={isSpeaking}
