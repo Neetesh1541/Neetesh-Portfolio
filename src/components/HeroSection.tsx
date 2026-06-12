@@ -213,20 +213,6 @@ const HeroSection = () => {
                 </div>
               </motion.div>
             </div>
-
-              {/* Stats badge - hidden on small mobile */}
-              <motion.div
-                className="absolute -bottom-2 right-0 glass-card rounded-xl px-4 py-2 z-10 hidden sm:block"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 1.5 }}
-              >
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-xs text-muted-foreground">Available for hire</span>
-                </div>
-              </motion.div>
-            </div>
           </motion.div>
         </div>
 
