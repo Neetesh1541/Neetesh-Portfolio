@@ -96,6 +96,7 @@ const IndexContent = () => {
         <Footer />
       </div>
       <ScrollToTop />
+      <AIChatbot />
       <VoiceToggle
         isEnabled={isEnabled}
         isSpeaking={isSpeaking}
