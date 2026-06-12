@@ -39,11 +39,18 @@ const skillCategories = [
     skills: ['Python', 'Flask', 'Django', 'Node.js', 'REST APIs', 'Databases'],
   },
   {
-    title: 'AI/ML',
+    title: 'AI / ML',
     icon: Cpu,
     color: 'from-violet-400 to-purple-500',
     image: skillAi,
-    skills: ['NLP', 'Computer Vision', 'Deep Learning', 'TensorFlow', 'OpenCV', 'ML Models'],
+    skills: ['NLP', 'Computer Vision', 'Deep Learning', 'TensorFlow', 'PyTorch', 'OpenCV', 'LLMs', 'Prompt Engineering'],
+  },
+  {
+    title: 'Data Science',
+    icon: BarChart3,
+    color: 'from-pink-400 to-rose-500',
+    image: skillAi,
+    skills: ['Python', 'Pandas', 'NumPy', 'Scikit-learn', 'Matplotlib', 'Seaborn', 'Jupyter', 'Statistics', 'EDA', 'Data Visualization', 'SQL', 'Power BI'],
   },
   {
     title: 'Tools & More',
@@ -56,9 +63,9 @@ const skillCategories = [
 
 const radarData = [
   { skill: 'React', value: 95, fullMark: 100 },
-  { skill: 'Python', value: 88, fullMark: 100 },
-  { skill: 'AI/ML', value: 82, fullMark: 100 },
-  { skill: 'Node.js', value: 78, fullMark: 100 },
+  { skill: 'Python', value: 90, fullMark: 100 },
+  { skill: 'AI/ML', value: 85, fullMark: 100 },
+  { skill: 'Data Science', value: 82, fullMark: 100 },
   { skill: 'TypeScript', value: 90, fullMark: 100 },
   { skill: 'Database', value: 85, fullMark: 100 },
 ];
