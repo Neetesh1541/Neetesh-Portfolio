@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState, useRef } from 'react';
-import profilePhoto from '@/assets/profile-photo-new.png';
+import profilePhoto from '@/assets/profile-face.png';
 
 const LoadingScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
