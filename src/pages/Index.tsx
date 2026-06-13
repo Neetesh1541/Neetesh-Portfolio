@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import ParticleBackground from '@/components/ParticleBackground';
+import CodeBackground from '@/components/CodeBackground';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
 import AboutSection from '@/components/AboutSection';
@@ -46,6 +47,7 @@ const IndexContent = () => {
     <>
       <LoadingScreen />
       <div className="min-h-screen relative">
+        <CodeBackground />
         <ParticleBackground />
         <Navbar />
         <main className="relative z-10">
