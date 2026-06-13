@@ -109,44 +109,29 @@ const LoadingScreen = () => {
           <canvas ref={canvasRef} className="absolute inset-0" />
 
           <div className="relative z-10 flex flex-col items-center gap-6 px-6">
-            {/* Animated photo */}
+            {/* Animated photo - no circle frame, face clearly visible */}
             <motion.div
               initial={{ opacity: 0, scale: 0.6, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.8, type: 'spring' }}
               className="relative"
             >
-              {/* Pulsing glow */}
               <motion.div
-                className="absolute inset-0 rounded-full blur-3xl"
-                style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.6), rgba(14,165,233,0.3), transparent 70%)' }}
-                animate={{ scale: [1, 1.25, 1], opacity: [0.6, 0.9, 0.6] }}
-                transition={{ duration: 2.5, repeat: Infinity }}
-              />
-              {/* Rotating gradient ring */}
-              <motion.div
-                className="absolute -inset-2 rounded-full"
+                className="absolute inset-0 blur-3xl -z-10"
                 style={{
                   background:
-                    'conic-gradient(from 0deg, #06b6d4, #8b5cf6, #ec4899, #06b6d4)',
+                    'radial-gradient(circle at 50% 50%, rgba(139,92,246,0.55), rgba(14,165,233,0.3) 45%, transparent 75%)',
                 }}
-                animate={{ rotate: 360 }}
-                transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+                animate={{ scale: [1, 1.2, 1], opacity: [0.55, 0.9, 0.55] }}
+                transition={{ duration: 2.6, repeat: Infinity }}
               />
-              {/* Counter ring */}
-              <motion.div
-                className="absolute -inset-5 rounded-full border-2 border-dashed border-cyan-400/40"
-                animate={{ rotate: -360 }}
-                transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
+              <motion.img
+                src={profilePhoto}
+                alt="Neetesh Kumar"
+                className="relative w-44 h-44 md:w-56 md:h-56 object-contain drop-shadow-[0_10px_40px_rgba(139,92,246,0.55)]"
+                animate={{ y: [0, -6, 0] }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
               />
-              {/* Photo */}
-              <div className="relative w-36 h-36 md:w-44 md:h-44 rounded-full overflow-hidden border-4 border-[#0a0a14] bg-gradient-to-br from-violet-500/20 to-cyan-500/20">
-                <img
-                  src={profilePhoto}
-                  alt="Neetesh Kumar"
-                  className="w-full h-full object-cover scale-110"
-                />
-              </div>
             </motion.div>
 
             <motion.div
