@@ -95,19 +95,39 @@ const AIChatbot = () => {
       }
     } catch {}
 
-    // Fallback to browser TTS
+    // Fallback to browser TTS (robust: wait for voices to load)
     try {
-      if (window.speechSynthesis) {
+      const synth = window.speechSynthesis;
+      if (synth) {
+        const getVoicesAsync = () =>
+          new Promise<SpeechSynthesisVoice[]>((resolve) => {
+            const existing = synth.getVoices();
+            if (existing && existing.length) return resolve(existing);
+            const handler = () => {
+              synth.removeEventListener('voiceschanged', handler);
+              resolve(synth.getVoices() || []);
+            };
+            synth.addEventListener('voiceschanged', handler);
+            setTimeout(() => resolve(synth.getVoices() || []), 500);
+          });
+
+        const voices = await getVoicesAsync();
         const utter = new SpeechSynthesisUtterance(text);
         utter.lang = 'en-US';
         utter.rate = 1;
-        const voices = window.speechSynthesis.getVoices();
-        const v = voices.find((x) => x.lang.startsWith('en') && /male|google|microsoft/i.test(x.name)) || voices.find((x) => x.lang.startsWith('en'));
-        if (v) utter.voice = v;
+        utter.pitch = 1;
+        const preferred =
+          voices.find((x) => /en/i.test(x.lang) && /(google).*(male|uk|us)/i.test(x.name)) ||
+          voices.find((x) => /en/i.test(x.lang) && /male/i.test(x.name)) ||
+          voices.find((x) => /en-US|en-GB/i.test(x.lang)) ||
+          voices.find((x) => /^en/i.test(x.lang));
+        if (preferred) utter.voice = preferred;
+
+        synth.cancel();
         await new Promise<void>((resolve) => {
           utter.onend = () => resolve();
           utter.onerror = () => resolve();
-          window.speechSynthesis.speak(utter);
+          synth.speak(utter);
         });
       }
     } catch {}
