@@ -255,7 +255,7 @@ const AIChatbot = () => {
       {/* Floating button */}
       <motion.button
         onClick={() => setOpen((o) => !o)}
-        className="fixed bottom-24 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 via-fuchsia-500 to-cyan-500 shadow-[0_0_30px_rgba(139,92,246,0.6)] flex items-center justify-center text-white"
+        className="fixed bottom-24 right-6 z-[160] w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 via-fuchsia-500 to-cyan-500 shadow-[0_0_30px_rgba(139,92,246,0.6)] flex items-center justify-center text-white"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         aria-label={open ? 'Close chatbot' : 'Open chatbot'}
@@ -285,7 +285,7 @@ const AIChatbot = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
             transition={{ type: 'spring', damping: 20 }}
-            className="fixed bottom-44 right-6 z-50 w-[calc(100vw-3rem)] max-w-sm h-[70vh] max-h-[560px] rounded-2xl glass-card border border-white/10 shadow-2xl flex flex-col overflow-hidden"
+            className="fixed bottom-44 right-6 z-[150] w-[calc(100vw-3rem)] max-w-sm h-[70vh] max-h-[560px] rounded-2xl glass-card border border-white/10 shadow-2xl flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center gap-3 p-4 border-b border-white/10 bg-gradient-to-r from-violet-500/20 to-cyan-500/20">
@@ -427,6 +427,12 @@ const AIChatbot = () => {
                   <p className="text-xs text-muted-foreground">
                     {listening ? 'Listening… speak now' : speaking ? 'Speaking…' : 'Tap mic to ask'}
                   </p>
+                  {voiceError && (
+                    <p className="flex items-center gap-1 text-xs text-destructive text-center px-3">
+                      <AlertCircle size={13} />
+                      {voiceError}
+                    </p>
+                  )}
                 </div>
               )}
             </div>
