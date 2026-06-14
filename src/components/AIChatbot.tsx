@@ -47,16 +47,6 @@ const AIChatbot = () => {
     }
   }, [open, mode]);
 
-  useEffect(() => {
-    return () => {
-      recognitionRef.current?.stop?.();
-      mediaRecorderRef.current?.stop?.();
-      mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
-      if (recordingTimeoutRef.current) window.clearTimeout(recordingTimeoutRef.current);
-      stopSpeaking();
-    };
-  }, [stopSpeaking]);
-
   const stopSpeaking = useCallback(() => {
     try {
       audioRef.current?.pause();
@@ -67,6 +57,16 @@ const AIChatbot = () => {
     } catch {}
     setSpeaking(false);
   }, []);
+
+  useEffect(() => {
+    return () => {
+      recognitionRef.current?.stop?.();
+      mediaRecorderRef.current?.stop?.();
+      mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+      if (recordingTimeoutRef.current) window.clearTimeout(recordingTimeoutRef.current);
+      stopSpeaking();
+    };
+  }, [stopSpeaking]);
 
   const unlockSpeech = useCallback(() => {
     if (speechUnlockedRef.current) return;
