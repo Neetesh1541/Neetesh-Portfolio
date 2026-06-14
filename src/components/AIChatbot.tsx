@@ -364,6 +364,7 @@ const AIChatbot = () => {
     stopSpeaking();
     if (listening) {
       recognitionRef.current?.stop();
+      if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop();
       setListening(false);
     }
     setMode(m);
@@ -516,7 +517,7 @@ const AIChatbot = () => {
                     </button>
                     <button
                       onClick={toggleListening}
-                      disabled={loading}
+                      disabled={loading || voiceProcessing}
                       className={`relative w-14 h-14 rounded-full flex items-center justify-center text-white transition disabled:opacity-50 ${
                         listening
                           ? 'bg-gradient-to-br from-red-500 to-pink-500'
@@ -544,7 +545,7 @@ const AIChatbot = () => {
                     </button>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {listening ? 'Listening… speak now' : speaking ? 'Speaking…' : 'Tap mic to ask'}
+                    {listening ? 'Listening… tap again to send' : voiceProcessing ? 'Understanding…' : speaking ? 'Speaking…' : 'Tap mic to ask'}
                   </p>
                   {voiceError && (
                     <p className="flex items-center gap-1 text-xs text-destructive text-center px-3">
