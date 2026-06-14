@@ -53,8 +53,24 @@ const AIChatbot = () => {
     setSpeaking(false);
   }, []);
 
+  const unlockSpeech = useCallback(() => {
+    if (speechUnlockedRef.current) return;
+    speechUnlockedRef.current = true;
+    try {
+      const synth = window.speechSynthesis;
+      if (!synth) return;
+      const utter = new SpeechSynthesisUtterance('');
+      utter.volume = 0;
+      synth.speak(utter);
+      synth.cancel();
+    } catch {
+      // Some browsers do not allow silent speech warmups; playback can still work after the click.
+    }
+  }, []);
+
   const speakText = useCallback(async (text: string) => {
     if (voiceMuted) return;
+    setVoiceError('');
     stopSpeaking();
     setSpeaking(true);
 
@@ -79,19 +95,24 @@ const AIChatbot = () => {
             const url = URL.createObjectURL(blob);
             const audio = new Audio(url);
             audioRef.current = audio;
-            await new Promise<void>((resolve) => {
+            const played = await new Promise<boolean>((resolve) => {
               audio.onended = () => {
                 URL.revokeObjectURL(url);
-                resolve();
+                resolve(true);
               };
               audio.onerror = () => {
                 URL.revokeObjectURL(url);
-                resolve();
+                resolve(false);
               };
-              audio.play().catch(() => resolve());
+              audio.play().then(() => undefined).catch(() => {
+                URL.revokeObjectURL(url);
+                resolve(false);
+              });
             });
-            setSpeaking(false);
-            return;
+            if (played) {
+              setSpeaking(false);
+              return;
+            }
           }
         }
       }
@@ -131,8 +152,12 @@ const AIChatbot = () => {
           utter.onerror = () => resolve();
           synth.speak(utter);
         });
+      } else {
+        setVoiceError('Voice playback is not supported in this browser.');
       }
-    } catch {}
+    } catch {
+      setVoiceError('Voice playback is blocked. Tap the mic again or enable sound permissions.');
+    }
     setSpeaking(false);
   }, [voiceMuted, stopSpeaking]);
 
