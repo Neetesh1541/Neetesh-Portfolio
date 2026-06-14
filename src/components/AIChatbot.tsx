@@ -81,10 +81,14 @@ const AIChatbot = () => {
     try {
       audioRef.current?.pause();
       audioRef.current = null;
-    } catch {}
+    } catch {
+      // Ignore cleanup failures from already-stopped audio.
+    }
     try {
       window.speechSynthesis?.cancel();
-    } catch {}
+    } catch {
+      // Ignore cleanup failures from unavailable browser speech APIs.
+    }
     setSpeaking(false);
   }, []);
 
@@ -161,7 +165,9 @@ const AIChatbot = () => {
           }
         }
       }
-    } catch {}
+    } catch {
+      // ElevenLabs playback failed; browser speech synthesis fallback will run.
+    }
 
     // Fallback to browser TTS (robust: wait for voices to load)
     try {
@@ -337,20 +343,21 @@ const AIChatbot = () => {
           if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop();
         }, 10000);
         return;
-      } catch (error: any) {
+      } catch (error: unknown) {
         stopMediaStream();
-        if (error?.name === 'NotAllowedError' || error?.name === 'SecurityError') {
+        const errorName = error instanceof DOMException ? error.name : '';
+        if (errorName === 'NotAllowedError' || errorName === 'SecurityError') {
           setVoiceError('Microphone access is blocked. Allow microphone permission and try again.');
           return;
         }
-        if (error?.name === 'NotFoundError') {
+        if (errorName === 'NotFoundError') {
           setVoiceError('No microphone was found. Connect a mic and try again.');
           return;
         }
       }
     }
 
-    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SR = getBrowserSpeechRecognition();
     if (!SR) {
       setVoiceError("Voice input isn't supported in this browser. Please type your question.");
       return;
@@ -360,12 +367,12 @@ const AIChatbot = () => {
       rec.lang = 'en-US';
       rec.interimResults = false;
       rec.continuous = false;
-      rec.onresult = (e: any) => {
+      rec.onresult = (e) => {
         const transcript = e.results[0]?.[0]?.transcript || '';
         if (transcript) sendMessage(transcript);
       };
       rec.onend = () => setListening(false);
-      rec.onerror = (event: any) => {
+      rec.onerror = (event) => {
         setListening(false);
         const error = event?.error;
         if (error === 'not-allowed' || error === 'service-not-allowed') {
