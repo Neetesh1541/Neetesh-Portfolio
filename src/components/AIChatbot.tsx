@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, X, Send, Mic, MicOff, Volume2, VolumeX, Bot, User, Loader2 } from 'lucide-react';
+import { MessageCircle, X, Send, Mic, MicOff, Volume2, VolumeX, Bot, User, Loader2, AlertCircle } from 'lucide-react';
 import profilePhoto from '@/assets/profile-face.png';
 
 interface ChatMessage {
@@ -24,11 +24,13 @@ const AIChatbot = () => {
   const [listening, setListening] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const [voiceMuted, setVoiceMuted] = useState(false);
+  const [voiceError, setVoiceError] = useState('');
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const speechUnlockedRef = useRef(false);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
