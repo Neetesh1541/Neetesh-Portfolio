@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, X, Send, Mic, MicOff, Volume2, VolumeX, Bot, User, Loader2 } from 'lucide-react';
+import { MessageCircle, X, Send, Mic, MicOff, Volume2, VolumeX, Bot, User, Loader2, AlertCircle } from 'lucide-react';
 import profilePhoto from '@/assets/profile-face.png';
 
 interface ChatMessage {
@@ -9,6 +9,36 @@ interface ChatMessage {
 }
 
 type Mode = 'text' | 'voice';
+
+type SpeechRecognitionEventLike = {
+  results: ArrayLike<ArrayLike<{ transcript?: string }>>;
+};
+
+type SpeechRecognitionErrorEventLike = {
+  error?: string;
+};
+
+type SpeechRecognitionLike = {
+  lang: string;
+  interimResults: boolean;
+  continuous: boolean;
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+  onend: (() => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEventLike) => void) | null;
+  start: () => void;
+  stop: () => void;
+};
+
+type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
+
+const getBrowserSpeechRecognition = () => {
+  const browserWindow = window as Window & {
+    SpeechRecognition?: SpeechRecognitionConstructor;
+    webkitSpeechRecognition?: SpeechRecognitionConstructor;
+  };
+
+  return browserWindow.SpeechRecognition ?? browserWindow.webkitSpeechRecognition;
+};
 
 const AIChatbot = () => {
   const [open, setOpen] = useState(false);
@@ -24,11 +54,18 @@ const AIChatbot = () => {
   const [listening, setListening] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const [voiceMuted, setVoiceMuted] = useState(false);
+  const [voiceError, setVoiceError] = useState('');
+  const [voiceProcessing, setVoiceProcessing] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const audioChunksRef = useRef<BlobPart[]>([]);
+  const recordingTimeoutRef = useRef<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const speechUnlockedRef = useRef(false);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
@@ -44,15 +81,45 @@ const AIChatbot = () => {
     try {
       audioRef.current?.pause();
       audioRef.current = null;
-    } catch {}
+    } catch {
+      // Ignore cleanup failures from already-stopped audio.
+    }
     try {
       window.speechSynthesis?.cancel();
-    } catch {}
+    } catch {
+      // Ignore cleanup failures from unavailable browser speech APIs.
+    }
     setSpeaking(false);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      recognitionRef.current?.stop?.();
+      mediaRecorderRef.current?.stop?.();
+      mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+      if (recordingTimeoutRef.current) window.clearTimeout(recordingTimeoutRef.current);
+      stopSpeaking();
+    };
+  }, [stopSpeaking]);
+
+  const unlockSpeech = useCallback(() => {
+    if (speechUnlockedRef.current) return;
+    speechUnlockedRef.current = true;
+    try {
+      const synth = window.speechSynthesis;
+      if (!synth) return;
+      const utter = new SpeechSynthesisUtterance('');
+      utter.volume = 0;
+      synth.speak(utter);
+      synth.cancel();
+    } catch {
+      // Some browsers do not allow silent speech warmups; playback can still work after the click.
+    }
   }, []);
 
   const speakText = useCallback(async (text: string) => {
     if (voiceMuted) return;
+    setVoiceError('');
     stopSpeaking();
     setSpeaking(true);
 
@@ -77,23 +144,30 @@ const AIChatbot = () => {
             const url = URL.createObjectURL(blob);
             const audio = new Audio(url);
             audioRef.current = audio;
-            await new Promise<void>((resolve) => {
+            const played = await new Promise<boolean>((resolve) => {
               audio.onended = () => {
                 URL.revokeObjectURL(url);
-                resolve();
+                resolve(true);
               };
               audio.onerror = () => {
                 URL.revokeObjectURL(url);
-                resolve();
+                resolve(false);
               };
-              audio.play().catch(() => resolve());
+              audio.play().then(() => undefined).catch(() => {
+                URL.revokeObjectURL(url);
+                resolve(false);
+              });
             });
-            setSpeaking(false);
-            return;
+            if (played) {
+              setSpeaking(false);
+              return;
+            }
           }
         }
       }
-    } catch {}
+    } catch {
+      // ElevenLabs playback failed; browser speech synthesis fallback will run.
+    }
 
     // Fallback to browser TTS (robust: wait for voices to load)
     try {
@@ -129,8 +203,12 @@ const AIChatbot = () => {
           utter.onerror = () => resolve();
           synth.speak(utter);
         });
+      } else {
+        setVoiceError('Voice playback is not supported in this browser.');
       }
-    } catch {}
+    } catch {
+      setVoiceError('Voice playback is blocked. Tap the mic again or enable sound permissions.');
+    }
     setSpeaking(false);
   }, [voiceMuted, stopSpeaking]);
 
@@ -166,15 +244,122 @@ const AIChatbot = () => {
     }
   }, [messages, loading, mode, speakText]);
 
-  const toggleListening = useCallback(() => {
-    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SR) {
-      setMessages((m) => [...m, { role: 'assistant', content: "Voice input isn't supported in this browser. Please type your question." }]);
+  const stopMediaStream = useCallback(() => {
+    mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+    mediaStreamRef.current = null;
+    if (recordingTimeoutRef.current) {
+      window.clearTimeout(recordingTimeoutRef.current);
+      recordingTimeoutRef.current = null;
+    }
+  }, []);
+
+  const transcribeAudio = useCallback(async (audioBlob: Blob) => {
+    if (!audioBlob.size) {
+      setVoiceError("I couldn't hear anything. Try again closer to the mic.");
       return;
     }
+
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    if (!supabaseUrl || !supabaseKey) {
+      setVoiceError('Voice input is not configured yet.');
+      return;
+    }
+
+    setVoiceProcessing(true);
+    try {
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'voice.webm');
+      const res = await fetch(`${supabaseUrl}/functions/v1/elevenlabs-stt`, {
+        method: 'POST',
+        headers: {
+          apikey: supabaseKey,
+          Authorization: `Bearer ${supabaseKey}`,
+        },
+        body: formData,
+      });
+      const data = await res.json().catch(() => ({}));
+      const transcript = String(data?.text || '').trim();
+      if (!res.ok) throw new Error(data?.error || 'Voice transcription failed');
+      if (!transcript) {
+        setVoiceError("I couldn't catch that. Please try again.");
+        return;
+      }
+      sendMessage(transcript);
+    } catch (error) {
+      setVoiceError(error instanceof Error ? error.message : 'Voice transcription failed. Please try again.');
+    } finally {
+      setVoiceProcessing(false);
+    }
+  }, [sendMessage]);
+
+  const getRecordingMimeType = () => {
+    if (!('MediaRecorder' in window)) return undefined;
+    if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) return 'audio/webm;codecs=opus';
+    if (MediaRecorder.isTypeSupported('audio/webm')) return 'audio/webm';
+    if (MediaRecorder.isTypeSupported('audio/mp4')) return 'audio/mp4';
+    return undefined;
+  };
+
+  const toggleListening = useCallback(async () => {
+    unlockSpeech();
+    setVoiceError('');
     if (listening) {
       recognitionRef.current?.stop();
+      if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop();
       setListening(false);
+      return;
+    }
+
+    if ('mediaDevices' in navigator && 'MediaRecorder' in window) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+        });
+        const mimeType = getRecordingMimeType();
+        const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+        audioChunksRef.current = [];
+        mediaStreamRef.current = stream;
+        mediaRecorderRef.current = recorder;
+        recorder.ondataavailable = (event) => {
+          if (event.data.size > 0) audioChunksRef.current.push(event.data);
+        };
+        recorder.onstop = () => {
+          const blobType = mimeType || 'audio/webm';
+          const audioBlob = new Blob(audioChunksRef.current, { type: blobType });
+          audioChunksRef.current = [];
+          setListening(false);
+          stopMediaStream();
+          transcribeAudio(audioBlob);
+        };
+        recorder.onerror = () => {
+          setListening(false);
+          stopMediaStream();
+          setVoiceError('Voice recording stopped. Tap the mic and try again.');
+        };
+        recorder.start(250);
+        setListening(true);
+        recordingTimeoutRef.current = window.setTimeout(() => {
+          if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop();
+        }, 10000);
+        return;
+      } catch (error: unknown) {
+        stopMediaStream();
+        const errorName = error instanceof DOMException ? error.name : '';
+        if (errorName === 'NotAllowedError' || errorName === 'SecurityError') {
+          setVoiceError('Microphone access is blocked. Allow microphone permission and try again.');
+          return;
+        }
+        if (errorName === 'NotFoundError') {
+          setVoiceError('No microphone was found. Connect a mic and try again.');
+          return;
+        }
+      }
+    }
+
+    const SR = getBrowserSpeechRecognition();
+    if (!SR) {
+      setVoiceError("Voice input isn't supported in this browser. Please type your question.");
       return;
     }
     try {
@@ -182,25 +367,41 @@ const AIChatbot = () => {
       rec.lang = 'en-US';
       rec.interimResults = false;
       rec.continuous = false;
-      rec.onresult = (e: any) => {
+      rec.onresult = (e) => {
         const transcript = e.results[0]?.[0]?.transcript || '';
         if (transcript) sendMessage(transcript);
       };
       rec.onend = () => setListening(false);
-      rec.onerror = () => setListening(false);
+      rec.onerror = (event) => {
+        setListening(false);
+        const error = event?.error;
+        if (error === 'not-allowed' || error === 'service-not-allowed') {
+          setVoiceError('Microphone access is blocked. Allow microphone permission and try again.');
+        } else if (error === 'audio-capture') {
+          setVoiceError('No microphone was found. Connect a mic and try again.');
+        } else if (error === 'network') {
+          setVoiceError('Voice recognition needs an active internet connection.');
+        } else if (error !== 'no-speech' && error !== 'aborted') {
+          setVoiceError('Voice input stopped. Tap the mic and try again.');
+        }
+      };
       recognitionRef.current = rec;
       rec.start();
       setListening(true);
     } catch {
       setListening(false);
+      setVoiceError('Voice input could not start. Allow microphone permission and try again.');
     }
-  }, [listening, sendMessage]);
+  }, [listening, sendMessage, stopMediaStream, transcribeAudio, unlockSpeech]);
 
   const switchMode = (m: Mode) => {
     if (m === mode) return;
+    unlockSpeech();
+    setVoiceError('');
     stopSpeaking();
     if (listening) {
       recognitionRef.current?.stop();
+      if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop();
       setListening(false);
     }
     setMode(m);
@@ -211,7 +412,7 @@ const AIChatbot = () => {
       {/* Floating button */}
       <motion.button
         onClick={() => setOpen((o) => !o)}
-        className="fixed bottom-24 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 via-fuchsia-500 to-cyan-500 shadow-[0_0_30px_rgba(139,92,246,0.6)] flex items-center justify-center text-white"
+        className="fixed bottom-24 right-6 z-[160] w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 via-fuchsia-500 to-cyan-500 shadow-[0_0_30px_rgba(139,92,246,0.6)] flex items-center justify-center text-white"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         aria-label={open ? 'Close chatbot' : 'Open chatbot'}
@@ -241,7 +442,7 @@ const AIChatbot = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
             transition={{ type: 'spring', damping: 20 }}
-            className="fixed bottom-44 right-6 z-50 w-[calc(100vw-3rem)] max-w-sm h-[70vh] max-h-[560px] rounded-2xl glass-card border border-white/10 shadow-2xl flex flex-col overflow-hidden"
+            className="fixed bottom-44 right-6 z-[150] w-[calc(100vw-3rem)] max-w-sm h-[70vh] max-h-[560px] rounded-2xl glass-card border border-white/10 shadow-2xl flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center gap-3 p-4 border-b border-white/10 bg-gradient-to-r from-violet-500/20 to-cyan-500/20">
@@ -353,7 +554,7 @@ const AIChatbot = () => {
                     </button>
                     <button
                       onClick={toggleListening}
-                      disabled={loading}
+                      disabled={loading || voiceProcessing}
                       className={`relative w-14 h-14 rounded-full flex items-center justify-center text-white transition disabled:opacity-50 ${
                         listening
                           ? 'bg-gradient-to-br from-red-500 to-pink-500'
@@ -381,8 +582,14 @@ const AIChatbot = () => {
                     </button>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {listening ? 'Listening… speak now' : speaking ? 'Speaking…' : 'Tap mic to ask'}
+                    {listening ? 'Listening… tap again to send' : voiceProcessing ? 'Understanding…' : speaking ? 'Speaking…' : 'Tap mic to ask'}
                   </p>
+                  {voiceError && (
+                    <p className="flex items-center gap-1 text-xs text-destructive text-center px-3">
+                      <AlertCircle size={13} />
+                      {voiceError}
+                    </p>
+                  )}
                 </div>
               )}
             </div>
