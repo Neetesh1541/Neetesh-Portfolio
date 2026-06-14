@@ -208,6 +208,63 @@ const AIChatbot = () => {
     }
   }, [messages, loading, mode, speakText]);
 
+  const stopMediaStream = useCallback(() => {
+    mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+    mediaStreamRef.current = null;
+    if (recordingTimeoutRef.current) {
+      window.clearTimeout(recordingTimeoutRef.current);
+      recordingTimeoutRef.current = null;
+    }
+  }, []);
+
+  const transcribeAudio = useCallback(async (audioBlob: Blob) => {
+    if (!audioBlob.size) {
+      setVoiceError("I couldn't hear anything. Try again closer to the mic.");
+      return;
+    }
+
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    if (!supabaseUrl || !supabaseKey) {
+      setVoiceError('Voice input is not configured yet.');
+      return;
+    }
+
+    setVoiceProcessing(true);
+    try {
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'voice.webm');
+      const res = await fetch(`${supabaseUrl}/functions/v1/elevenlabs-stt`, {
+        method: 'POST',
+        headers: {
+          apikey: supabaseKey,
+          Authorization: `Bearer ${supabaseKey}`,
+        },
+        body: formData,
+      });
+      const data = await res.json().catch(() => ({}));
+      const transcript = String(data?.text || '').trim();
+      if (!res.ok) throw new Error(data?.error || 'Voice transcription failed');
+      if (!transcript) {
+        setVoiceError("I couldn't catch that. Please try again.");
+        return;
+      }
+      sendMessage(transcript);
+    } catch (error) {
+      setVoiceError(error instanceof Error ? error.message : 'Voice transcription failed. Please try again.');
+    } finally {
+      setVoiceProcessing(false);
+    }
+  }, [sendMessage]);
+
+  const getRecordingMimeType = () => {
+    if (!('MediaRecorder' in window)) return undefined;
+    if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) return 'audio/webm;codecs=opus';
+    if (MediaRecorder.isTypeSupported('audio/webm')) return 'audio/webm';
+    if (MediaRecorder.isTypeSupported('audio/mp4')) return 'audio/mp4';
+    return undefined;
+  };
+
   const toggleListening = useCallback(() => {
     unlockSpeech();
     setVoiceError('');
