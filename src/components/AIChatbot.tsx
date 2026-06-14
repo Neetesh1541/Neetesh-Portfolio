@@ -194,9 +194,11 @@ const AIChatbot = () => {
   }, [messages, loading, mode, speakText]);
 
   const toggleListening = useCallback(() => {
+    unlockSpeech();
+    setVoiceError('');
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SR) {
-      setMessages((m) => [...m, { role: 'assistant', content: "Voice input isn't supported in this browser. Please type your question." }]);
+      setVoiceError("Voice input isn't supported in this browser. Please type your question.");
       return;
     }
     if (listening) {
@@ -214,17 +216,32 @@ const AIChatbot = () => {
         if (transcript) sendMessage(transcript);
       };
       rec.onend = () => setListening(false);
-      rec.onerror = () => setListening(false);
+      rec.onerror = (event: any) => {
+        setListening(false);
+        const error = event?.error;
+        if (error === 'not-allowed' || error === 'service-not-allowed') {
+          setVoiceError('Microphone access is blocked. Allow microphone permission and try again.');
+        } else if (error === 'audio-capture') {
+          setVoiceError('No microphone was found. Connect a mic and try again.');
+        } else if (error === 'network') {
+          setVoiceError('Voice recognition needs an active internet connection.');
+        } else if (error !== 'no-speech' && error !== 'aborted') {
+          setVoiceError('Voice input stopped. Tap the mic and try again.');
+        }
+      };
       recognitionRef.current = rec;
       rec.start();
       setListening(true);
     } catch {
       setListening(false);
+      setVoiceError('Voice input could not start. Allow microphone permission and try again.');
     }
-  }, [listening, sendMessage]);
+  }, [listening, sendMessage, unlockSpeech]);
 
   const switchMode = (m: Mode) => {
     if (m === mode) return;
+    unlockSpeech();
+    setVoiceError('');
     stopSpeaking();
     if (listening) {
       recognitionRef.current?.stop();
