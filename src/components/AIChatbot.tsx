@@ -265,17 +265,64 @@ const AIChatbot = () => {
     return undefined;
   };
 
-  const toggleListening = useCallback(() => {
+  const toggleListening = useCallback(async () => {
     unlockSpeech();
     setVoiceError('');
+    if (listening) {
+      recognitionRef.current?.stop();
+      if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop();
+      setListening(false);
+      return;
+    }
+
+    if ('mediaDevices' in navigator && 'MediaRecorder' in window) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+        });
+        const mimeType = getRecordingMimeType();
+        const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+        audioChunksRef.current = [];
+        mediaStreamRef.current = stream;
+        mediaRecorderRef.current = recorder;
+        recorder.ondataavailable = (event) => {
+          if (event.data.size > 0) audioChunksRef.current.push(event.data);
+        };
+        recorder.onstop = () => {
+          const blobType = mimeType || 'audio/webm';
+          const audioBlob = new Blob(audioChunksRef.current, { type: blobType });
+          audioChunksRef.current = [];
+          setListening(false);
+          stopMediaStream();
+          transcribeAudio(audioBlob);
+        };
+        recorder.onerror = () => {
+          setListening(false);
+          stopMediaStream();
+          setVoiceError('Voice recording stopped. Tap the mic and try again.');
+        };
+        recorder.start(250);
+        setListening(true);
+        recordingTimeoutRef.current = window.setTimeout(() => {
+          if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop();
+        }, 10000);
+        return;
+      } catch (error: any) {
+        stopMediaStream();
+        if (error?.name === 'NotAllowedError' || error?.name === 'SecurityError') {
+          setVoiceError('Microphone access is blocked. Allow microphone permission and try again.');
+          return;
+        }
+        if (error?.name === 'NotFoundError') {
+          setVoiceError('No microphone was found. Connect a mic and try again.');
+          return;
+        }
+      }
+    }
+
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SR) {
       setVoiceError("Voice input isn't supported in this browser. Please type your question.");
-      return;
-    }
-    if (listening) {
-      recognitionRef.current?.stop();
-      setListening(false);
       return;
     }
     try {
@@ -308,7 +355,7 @@ const AIChatbot = () => {
       setListening(false);
       setVoiceError('Voice input could not start. Allow microphone permission and try again.');
     }
-  }, [listening, sendMessage, unlockSpeech]);
+  }, [listening, sendMessage, stopMediaStream, transcribeAudio, unlockSpeech]);
 
   const switchMode = (m: Mode) => {
     if (m === mode) return;
