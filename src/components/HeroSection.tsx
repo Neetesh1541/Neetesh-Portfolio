@@ -2,8 +2,10 @@ import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
 import { ArrowDown, Github, Linkedin, Mail, Sparkles } from 'lucide-react';
 import profilePhoto from '@/assets/profile-photo-new.png';
+import { useVoiceGuideContext } from '@/components/VoiceGuideProvider';
 
 const HeroSection = () => {
+  const { isSpeaking } = useVoiceGuideContext();
   return (
     <section className="min-h-screen flex items-center justify-center relative overflow-hidden pt-20 px-4">
       {/* Minimal background shapes - hidden on mobile */}
