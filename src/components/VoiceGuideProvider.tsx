@@ -1,4 +1,6 @@
 import { createContext, useContext, useRef, useState, useCallback, useEffect } from "react";
+import { setAmplitude } from "@/lib/speech-amplitude";
+
 
 const VOICE_ENABLED_KEY = 'portfolio_voice_enabled';
 
@@ -83,15 +85,40 @@ export const VoiceGuideProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           loadVoices();
         }
 
-        utterance.onend = () => resolve();
-        utterance.onerror = () => resolve();
+        // Synthetic amplitude for browser TTS (no audio graph available):
+        // combine several sines for an organic mouth cadence.
+        let running = true;
+        const start = performance.now();
+        const tick = () => {
+          if (!running) return;
+          const t = (performance.now() - start) / 1000;
+          const a =
+            0.28 +
+            0.32 * Math.abs(Math.sin(t * 7.9)) +
+            0.22 * Math.abs(Math.sin(t * 3.3 + 1.1)) +
+            0.12 * Math.abs(Math.sin(t * 13.7 + 2.4));
+          setAmplitude(Math.min(1, a));
+          requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+
+        const stop = () => {
+          running = false;
+          setAmplitude(0);
+          resolve();
+        };
+
+        utterance.onend = stop;
+        utterance.onerror = stop;
 
         window.speechSynthesis.speak(utterance);
       } catch {
+        setAmplitude(0);
         resolve();
       }
     });
   }, []);
+
 
   const processQueue = useCallback(async () => {
     if (isProcessingQueue.current || speechQueue.current.length === 0) return;
