@@ -240,63 +240,48 @@ const HeroSection = () => {
                 transition={{ duration: 4, repeat: Infinity }}
               />
 
-              {/* Image with realistic subtle speaking motion */}
+              {/* Image with subtle speaking motion (disabled when reduced-motion) */}
               <motion.div
                 className="relative"
                 animate={
-                  isSpeaking
+                  reduceMotion
+                    ? { y: 0 }
+                    : isSpeaking
                     ? { y: [0, -1.5, 0.5, -1, 0] }
                     : { y: [0, -10, 0] }
                 }
                 transition={
-                  isSpeaking
+                  reduceMotion
+                    ? { duration: 0 }
+                    : isSpeaking
                     ? { duration: 1.6, repeat: Infinity, ease: 'easeInOut' }
                     : { duration: 5, repeat: Infinity, ease: 'easeInOut' }
                 }
               >
                 <motion.img
+                  ref={imgRef}
                   src={profilePhoto}
                   alt="Neetesh Kumar"
+                  crossOrigin="anonymous"
                   className="relative w-56 h-56 sm:w-72 sm:h-72 md:w-80 md:h-80 lg:w-[26rem] lg:h-[26rem] object-contain drop-shadow-[0_20px_40px_rgba(139,92,246,0.35)]"
                 />
 
-                {/*
-                  Realistic lip-sync overlay:
-                  - Positioned exactly on the mouth (measured from the photo)
-                  - Uses a skin-blend soft shadow that stretches vertically to
-                    simulate the lower lip / jaw opening while speaking.
-                */}
-                {isSpeaking && (
-                  <motion.div
-                    aria-hidden
-                    className="pointer-events-none absolute"
-                    style={{
-                      // Mouth center measured from the profile photo
-                      top: '18.6%',
-                      left: '50%',
-                      width: '6.2%',
-                      height: '1.6%',
-                      transform: 'translate(-50%, -50%)',
-                      transformOrigin: '50% 0%',
-                      borderRadius: '50%',
-                      background:
-                        'radial-gradient(ellipse at 50% 40%, rgba(60,25,20,0.55) 0%, rgba(90,45,35,0.35) 55%, rgba(120,80,70,0) 100%)',
-                      filter: 'blur(1.2px)',
-                      mixBlendMode: 'multiply',
-                    }}
-                    animate={{
-                      scaleY: [1, 2.6, 1.4, 3.1, 1.6, 2.2, 1.1, 2.8, 1],
-                      scaleX: [1, 1.05, 1.02, 1.08, 1.03, 1.06, 1.01, 1.07, 1],
-                      opacity: [0.55, 0.75, 0.6, 0.8, 0.6, 0.7, 0.55, 0.75, 0.55],
-                    }}
-                    transition={{
-                      duration: 1.1,
-                      repeat: Infinity,
-                      ease: 'easeInOut',
-                    }}
-                  />
-                )}
+                {/* Amplitude-driven lip-sync overlay */}
+                <MouthOverlay
+                  box={box}
+                  active={isSpeaking}
+                  debug={!!calibration}
+                />
+
+                {/* Calibration UI — only shows a small gear */}
+                <MouthCalibrator
+                  value={box}
+                  onChange={(next) => setCalibration(next)}
+                  onReset={() => setCalibration(null)}
+                />
               </motion.div>
+
+
 
 
               {/* Stats badge - hidden on small mobile */}
