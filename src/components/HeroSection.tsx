@@ -1,12 +1,59 @@
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
 import { ArrowDown, Github, Linkedin, Mail, Sparkles } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import profilePhoto from '@/assets/profile-photo-new.png';
 import { useVoiceGuideContext } from '@/components/VoiceGuideProvider';
+import MouthOverlay from '@/components/MouthOverlay';
+import MouthCalibrator from '@/components/MouthCalibrator';
+import {
+  DEFAULT_MOUTH,
+  detectMouth,
+  loadCalibration,
+  loadDetected,
+  saveDetected,
+  type MouthBox,
+} from '@/lib/mouth-calibration';
 
 const HeroSection = () => {
   const { isSpeaking } = useVoiceGuideContext();
+  const reduceMotion = useReducedMotion();
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [detectedBox, setDetectedBox] = useState<MouthBox | null>(() =>
+    loadDetected(profilePhoto)
+  );
+  const [calibration, setCalibration] = useState<MouthBox | null>(() =>
+    loadCalibration()
+  );
+  const [calibratorOpen, setCalibratorOpen] = useState(false);
+
+  // Resolution priority: manual calibration → face-landmark detection → default.
+  const box: MouthBox = calibration ?? detectedBox ?? DEFAULT_MOUTH;
+
+  // Run MediaPipe detection once per profile photo, cache the result.
+  useEffect(() => {
+    if (detectedBox || !imgRef.current) return;
+    let cancelled = false;
+    const run = async () => {
+      const el = imgRef.current;
+      if (!el) return;
+      const result = await detectMouth(el);
+      if (cancelled || !result) return;
+      saveDetected(profilePhoto, result);
+      setDetectedBox(result);
+    };
+    if (imgRef.current.complete) {
+      run();
+    } else {
+      imgRef.current.addEventListener('load', run, { once: true });
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [detectedBox]);
+
   return (
+
     <section className="min-h-screen flex items-center justify-center relative overflow-hidden pt-20 px-4">
       {/* Minimal background shapes - hidden on mobile */}
       <div className="absolute inset-0 pointer-events-none hidden md:block">
