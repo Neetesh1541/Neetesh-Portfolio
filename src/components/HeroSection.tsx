@@ -2,8 +2,10 @@ import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
 import { ArrowDown, Github, Linkedin, Mail, Sparkles } from 'lucide-react';
 import profilePhoto from '@/assets/profile-photo-new.png';
+import { useVoiceGuideContext } from '@/components/VoiceGuideProvider';
 
 const HeroSection = () => {
+  const { isSpeaking } = useVoiceGuideContext();
   return (
     <section className="min-h-screen flex items-center justify-center relative overflow-hidden pt-20 px-4">
       {/* Minimal background shapes - hidden on mobile */}
@@ -191,14 +193,113 @@ const HeroSection = () => {
                 transition={{ duration: 4, repeat: Infinity }}
               />
 
-              {/* Image - transparent background, no circular frame */}
-              <motion.img
-                src={profilePhoto}
-                alt="Neetesh Kumar"
-                className="relative w-56 h-56 sm:w-72 sm:h-72 md:w-80 md:h-80 lg:w-[26rem] lg:h-[26rem] object-contain drop-shadow-[0_20px_40px_rgba(139,92,246,0.35)]"
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-              />
+              {/* Image with speaking gestures - transparent background, no circular frame */}
+              <motion.div
+                className="relative"
+                animate={
+                  isSpeaking
+                    ? {
+                        rotate: [0, -1.5, 1.2, -0.8, 1, 0],
+                        x: [0, -3, 4, -2, 2, 0],
+                        y: [0, -4, -2, -6, -3, 0],
+                      }
+                    : { y: [0, -10, 0], rotate: 0, x: 0 }
+                }
+                transition={
+                  isSpeaking
+                    ? { duration: 2.2, repeat: Infinity, ease: 'easeInOut' }
+                    : { duration: 5, repeat: Infinity, ease: 'easeInOut' }
+                }
+                style={{ transformOrigin: '50% 80%' }}
+              >
+                <motion.img
+                  src={profilePhoto}
+                  alt="Neetesh Kumar"
+                  className="relative w-56 h-56 sm:w-72 sm:h-72 md:w-80 md:h-80 lg:w-[26rem] lg:h-[26rem] object-contain drop-shadow-[0_20px_40px_rgba(139,92,246,0.35)]"
+                  animate={
+                    isSpeaking
+                      ? { scale: [1, 1.012, 0.996, 1.008, 1] }
+                      : { scale: 1 }
+                  }
+                  transition={
+                    isSpeaking
+                      ? { duration: 0.35, repeat: Infinity, ease: 'easeInOut' }
+                      : { duration: 0.3 }
+                  }
+                />
+
+                {/* Fake lip-sync: subtle mouth-area shadow that pulses on speech */}
+                {isSpeaking && (
+                  <motion.div
+                    className="pointer-events-none absolute left-1/2 -translate-x-1/2 rounded-[50%] bg-black/30 blur-[3px] mix-blend-multiply"
+                    style={{
+                      top: '46%',
+                      width: '9%',
+                      height: '2.2%',
+                    }}
+                    animate={{
+                      scaleY: [1, 2.4, 1.2, 2.8, 1.4, 2, 1],
+                      scaleX: [1, 1.15, 1.05, 1.2, 1.1, 1.15, 1],
+                      opacity: [0.35, 0.55, 0.4, 0.6, 0.45, 0.5, 0.35],
+                    }}
+                    transition={{ duration: 0.9, repeat: Infinity, ease: 'easeInOut' }}
+                  />
+                )}
+
+                {/* Animated hand gesture emoji - appears while speaking */}
+                {isSpeaking && (
+                  <motion.div
+                    className="absolute -left-4 sm:-left-6 md:-left-8 bottom-[22%] text-4xl sm:text-5xl md:text-6xl select-none pointer-events-none"
+                    initial={{ opacity: 0, scale: 0.6, rotate: -30 }}
+                    animate={{
+                      opacity: 1,
+                      scale: [0.9, 1.05, 0.95, 1.1, 1],
+                      rotate: [-20, -5, -25, -8, -18],
+                      y: [0, -12, 4, -10, 0],
+                      x: [0, -6, 2, -8, 0],
+                    }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                    style={{ filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.35))' }}
+                  >
+                    👋
+                  </motion.div>
+                )}
+                {isSpeaking && (
+                  <motion.div
+                    className="absolute -right-2 sm:-right-4 md:-right-6 bottom-[10%] text-3xl sm:text-4xl md:text-5xl select-none pointer-events-none"
+                    initial={{ opacity: 0, scale: 0.6, rotate: 20 }}
+                    animate={{
+                      opacity: 1,
+                      scale: [0.95, 1.1, 1, 1.08, 0.98],
+                      rotate: [10, 25, 8, 22, 12],
+                      y: [0, -8, 2, -12, 0],
+                      x: [0, 6, -2, 8, 0],
+                    }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 2.1, repeat: Infinity, ease: 'easeInOut', delay: 0.2 }}
+                    style={{ filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.35))' }}
+                  >
+                    🤲
+                  </motion.div>
+                )}
+
+                {/* Voice sound ring pulse when speaking */}
+                {isSpeaking && (
+                  <>
+                    <motion.div
+                      className="absolute inset-0 rounded-full border-2 border-primary/40 pointer-events-none"
+                      animate={{ scale: [1, 1.15, 1.3], opacity: [0.6, 0.2, 0] }}
+                      transition={{ duration: 1.6, repeat: Infinity, ease: 'easeOut' }}
+                    />
+                    <motion.div
+                      className="absolute inset-0 rounded-full border-2 border-secondary/40 pointer-events-none"
+                      animate={{ scale: [1, 1.2, 1.4], opacity: [0.5, 0.15, 0] }}
+                      transition={{ duration: 1.6, repeat: Infinity, ease: 'easeOut', delay: 0.5 }}
+                    />
+                  </>
+                )}
+              </motion.div>
 
               {/* Stats badge - hidden on small mobile */}
               <motion.div
@@ -208,8 +309,10 @@ const HeroSection = () => {
                 transition={{ delay: 1.5 }}
               >
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-xs text-muted-foreground">Available for hire</span>
+                  <div className={`w-2 h-2 rounded-full ${isSpeaking ? 'bg-primary' : 'bg-green-500'} animate-pulse`} />
+                  <span className="text-xs text-muted-foreground">
+                    {isSpeaking ? 'Speaking...' : 'Available for hire'}
+                  </span>
                 </div>
               </motion.div>
             </div>
