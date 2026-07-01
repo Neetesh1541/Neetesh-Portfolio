@@ -193,113 +193,64 @@ const HeroSection = () => {
                 transition={{ duration: 4, repeat: Infinity }}
               />
 
-              {/* Image with speaking gestures - transparent background, no circular frame */}
+              {/* Image with realistic subtle speaking motion */}
               <motion.div
                 className="relative"
                 animate={
                   isSpeaking
-                    ? {
-                        rotate: [0, -1.5, 1.2, -0.8, 1, 0],
-                        x: [0, -3, 4, -2, 2, 0],
-                        y: [0, -4, -2, -6, -3, 0],
-                      }
-                    : { y: [0, -10, 0], rotate: 0, x: 0 }
+                    ? { y: [0, -1.5, 0.5, -1, 0] }
+                    : { y: [0, -10, 0] }
                 }
                 transition={
                   isSpeaking
-                    ? { duration: 2.2, repeat: Infinity, ease: 'easeInOut' }
+                    ? { duration: 1.6, repeat: Infinity, ease: 'easeInOut' }
                     : { duration: 5, repeat: Infinity, ease: 'easeInOut' }
                 }
-                style={{ transformOrigin: '50% 80%' }}
               >
                 <motion.img
                   src={profilePhoto}
                   alt="Neetesh Kumar"
                   className="relative w-56 h-56 sm:w-72 sm:h-72 md:w-80 md:h-80 lg:w-[26rem] lg:h-[26rem] object-contain drop-shadow-[0_20px_40px_rgba(139,92,246,0.35)]"
-                  animate={
-                    isSpeaking
-                      ? { scale: [1, 1.012, 0.996, 1.008, 1] }
-                      : { scale: 1 }
-                  }
-                  transition={
-                    isSpeaking
-                      ? { duration: 0.35, repeat: Infinity, ease: 'easeInOut' }
-                      : { duration: 0.3 }
-                  }
                 />
 
-                {/* Fake lip-sync: subtle mouth-area shadow that pulses on speech */}
+                {/*
+                  Realistic lip-sync overlay:
+                  - Positioned exactly on the mouth (measured from the photo)
+                  - Uses a skin-blend soft shadow that stretches vertically to
+                    simulate the lower lip / jaw opening while speaking.
+                */}
                 {isSpeaking && (
                   <motion.div
-                    className="pointer-events-none absolute left-1/2 -translate-x-1/2 rounded-[50%] bg-black/30 blur-[3px] mix-blend-multiply"
+                    aria-hidden
+                    className="pointer-events-none absolute"
                     style={{
-                      top: '46%',
-                      width: '9%',
-                      height: '2.2%',
+                      // Mouth center measured from the profile photo
+                      top: '18.6%',
+                      left: '50%',
+                      width: '6.2%',
+                      height: '1.6%',
+                      transform: 'translate(-50%, -50%)',
+                      transformOrigin: '50% 0%',
+                      borderRadius: '50%',
+                      background:
+                        'radial-gradient(ellipse at 50% 40%, rgba(60,25,20,0.55) 0%, rgba(90,45,35,0.35) 55%, rgba(120,80,70,0) 100%)',
+                      filter: 'blur(1.2px)',
+                      mixBlendMode: 'multiply',
                     }}
                     animate={{
-                      scaleY: [1, 2.4, 1.2, 2.8, 1.4, 2, 1],
-                      scaleX: [1, 1.15, 1.05, 1.2, 1.1, 1.15, 1],
-                      opacity: [0.35, 0.55, 0.4, 0.6, 0.45, 0.5, 0.35],
+                      scaleY: [1, 2.6, 1.4, 3.1, 1.6, 2.2, 1.1, 2.8, 1],
+                      scaleX: [1, 1.05, 1.02, 1.08, 1.03, 1.06, 1.01, 1.07, 1],
+                      opacity: [0.55, 0.75, 0.6, 0.8, 0.6, 0.7, 0.55, 0.75, 0.55],
                     }}
-                    transition={{ duration: 0.9, repeat: Infinity, ease: 'easeInOut' }}
+                    transition={{
+                      duration: 1.1,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                    }}
                   />
                 )}
-
-                {/* Animated hand gesture emoji - appears while speaking */}
-                {isSpeaking && (
-                  <motion.div
-                    className="absolute -left-4 sm:-left-6 md:-left-8 bottom-[22%] text-4xl sm:text-5xl md:text-6xl select-none pointer-events-none"
-                    initial={{ opacity: 0, scale: 0.6, rotate: -30 }}
-                    animate={{
-                      opacity: 1,
-                      scale: [0.9, 1.05, 0.95, 1.1, 1],
-                      rotate: [-20, -5, -25, -8, -18],
-                      y: [0, -12, 4, -10, 0],
-                      x: [0, -6, 2, -8, 0],
-                    }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-                    style={{ filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.35))' }}
-                  >
-                    👋
-                  </motion.div>
-                )}
-                {isSpeaking && (
-                  <motion.div
-                    className="absolute -right-2 sm:-right-4 md:-right-6 bottom-[10%] text-3xl sm:text-4xl md:text-5xl select-none pointer-events-none"
-                    initial={{ opacity: 0, scale: 0.6, rotate: 20 }}
-                    animate={{
-                      opacity: 1,
-                      scale: [0.95, 1.1, 1, 1.08, 0.98],
-                      rotate: [10, 25, 8, 22, 12],
-                      y: [0, -8, 2, -12, 0],
-                      x: [0, 6, -2, 8, 0],
-                    }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 2.1, repeat: Infinity, ease: 'easeInOut', delay: 0.2 }}
-                    style={{ filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.35))' }}
-                  >
-                    🤲
-                  </motion.div>
-                )}
-
-                {/* Voice sound ring pulse when speaking */}
-                {isSpeaking && (
-                  <>
-                    <motion.div
-                      className="absolute inset-0 rounded-full border-2 border-primary/40 pointer-events-none"
-                      animate={{ scale: [1, 1.15, 1.3], opacity: [0.6, 0.2, 0] }}
-                      transition={{ duration: 1.6, repeat: Infinity, ease: 'easeOut' }}
-                    />
-                    <motion.div
-                      className="absolute inset-0 rounded-full border-2 border-secondary/40 pointer-events-none"
-                      animate={{ scale: [1, 1.2, 1.4], opacity: [0.5, 0.15, 0] }}
-                      transition={{ duration: 1.6, repeat: Infinity, ease: 'easeOut', delay: 0.5 }}
-                    />
-                  </>
-                )}
               </motion.div>
+
 
               {/* Stats badge - hidden on small mobile */}
               <motion.div
