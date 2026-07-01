@@ -1,4 +1,6 @@
 import { createContext, useContext, useRef, useState, useCallback, useEffect } from "react";
+import { setAmplitude } from "@/lib/speech-amplitude";
+
 
 const VOICE_ENABLED_KEY = 'portfolio_voice_enabled';
 
@@ -33,6 +35,8 @@ export const VoiceGuideProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const speechQueue = useRef<string[]>([]);
   const isProcessingQueue = useRef(false);
   const useBrowserTTS = useRef(false);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
 
   // Load saved preference (but don't auto-enable to respect browser autoplay policies)
   useEffect(() => {
@@ -83,15 +87,40 @@ export const VoiceGuideProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           loadVoices();
         }
 
-        utterance.onend = () => resolve();
-        utterance.onerror = () => resolve();
+        // Synthetic amplitude for browser TTS (no audio graph available):
+        // combine several sines for an organic mouth cadence.
+        let running = true;
+        const start = performance.now();
+        const tick = () => {
+          if (!running) return;
+          const t = (performance.now() - start) / 1000;
+          const a =
+            0.28 +
+            0.32 * Math.abs(Math.sin(t * 7.9)) +
+            0.22 * Math.abs(Math.sin(t * 3.3 + 1.1)) +
+            0.12 * Math.abs(Math.sin(t * 13.7 + 2.4));
+          setAmplitude(Math.min(1, a));
+          requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+
+        const stop = () => {
+          running = false;
+          setAmplitude(0);
+          resolve();
+        };
+
+        utterance.onend = stop;
+        utterance.onerror = stop;
 
         window.speechSynthesis.speak(utterance);
       } catch {
+        setAmplitude(0);
         resolve();
       }
     });
   }, []);
+
 
   const processQueue = useCallback(async () => {
     if (isProcessingQueue.current || speechQueue.current.length === 0) return;
@@ -151,21 +180,69 @@ export const VoiceGuideProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         
         const audioUrl = URL.createObjectURL(audioBlob);
         const audio = new Audio(audioUrl);
+        audio.crossOrigin = 'anonymous';
+
+        // Wire the audio element into a shared AudioContext so we can
+        // sample real-time RMS amplitude and drive lip-sync from it.
+        let cleanupAnalyser: (() => void) | null = null;
+        try {
+          const AC: typeof AudioContext =
+            window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+          if (AC) {
+            const ctx =
+              audioCtxRef.current ??
+              (audioCtxRef.current = new AC());
+            if (ctx.state === 'suspended') {
+              ctx.resume().catch(() => {});
+            }
+            const source = ctx.createMediaElementSource(audio);
+            const analyser = ctx.createAnalyser();
+            analyser.fftSize = 512;
+            analyser.smoothingTimeConstant = 0.6;
+            source.connect(analyser);
+            analyser.connect(ctx.destination);
+
+            const buf = new Uint8Array(analyser.fftSize);
+            let rafId = 0;
+            const tick = () => {
+              analyser.getByteTimeDomainData(buf);
+              let sumSq = 0;
+              for (let i = 0; i < buf.length; i++) {
+                const v = (buf[i] - 128) / 128;
+                sumSq += v * v;
+              }
+              const rms = Math.sqrt(sumSq / buf.length);
+              // Boost + clamp for a punchier lip-sync signal.
+              setAmplitude(Math.min(1, rms * 3.5));
+              if (!audio.paused && !audio.ended) {
+                rafId = requestAnimationFrame(tick);
+              } else {
+                setAmplitude(0);
+              }
+            };
+            rafId = requestAnimationFrame(tick);
+            cleanupAnalyser = () => {
+              cancelAnimationFrame(rafId);
+              setAmplitude(0);
+              try { source.disconnect(); } catch { /* ignore */ }
+              try { analyser.disconnect(); } catch { /* ignore */ }
+            };
+          }
+        } catch {
+          // Analyser is optional; playback continues without lip-sync.
+        }
 
         await new Promise<void>((resolve) => {
-          audio.onended = () => {
+          const finish = () => {
+            cleanupAnalyser?.();
             URL.revokeObjectURL(audioUrl);
             resolve();
           };
-          audio.onerror = () => {
-            URL.revokeObjectURL(audioUrl);
-            resolve();
-          };
-          audio.play().catch(() => {
-            URL.revokeObjectURL(audioUrl);
-            resolve();
-          });
+          audio.onended = finish;
+          audio.onerror = finish;
+          audio.play().catch(finish);
         });
+
       } catch {
         // Switch to browser TTS for this session (silently)
         useBrowserTTS.current = true;
@@ -213,7 +290,9 @@ export const VoiceGuideProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       speakingRef.current = false;
       setIsSpeaking(false);
       setIsGlowing(false);
+      setAmplitude(0);
       playedSections.current.clear();
+
     }
 
     return newEnabled;
