@@ -290,7 +290,9 @@ export const VoiceGuideProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       speakingRef.current = false;
       setIsSpeaking(false);
       setIsGlowing(false);
+      setAmplitude(0);
       playedSections.current.clear();
+
     }
 
     return newEnabled;
