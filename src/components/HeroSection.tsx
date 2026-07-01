@@ -25,7 +25,7 @@ const HeroSection = () => {
   const [calibration, setCalibration] = useState<MouthBox | null>(() =>
     loadCalibration()
   );
-  const [calibratorOpen, setCalibratorOpen] = useState(false);
+
 
   // Resolution priority: manual calibration → face-landmark detection → default.
   const box: MouthBox = calibration ?? detectedBox ?? DEFAULT_MOUTH;
