@@ -5,11 +5,9 @@ import { useEffect, useRef, useState } from 'react';
 import profilePhoto from '@/assets/profile-photo-new.png';
 import { useVoiceGuideContext } from '@/components/VoiceGuideProvider';
 import MouthOverlay from '@/components/MouthOverlay';
-import MouthCalibrator from '@/components/MouthCalibrator';
 import {
   DEFAULT_MOUTH,
   detectMouth,
-  loadCalibration,
   loadDetected,
   saveDetected,
   type MouthBox,
