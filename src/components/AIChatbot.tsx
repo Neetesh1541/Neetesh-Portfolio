@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, X, Send, Mic, MicOff, Volume2, VolumeX, Bot, User, Loader2, AlertCircle } from 'lucide-react';
+import { X, Send, Mic, MicOff, Volume2, VolumeX, Bot, User, Loader2, AlertCircle, Sparkles } from 'lucide-react';
 import profilePhoto from '@/assets/profile-face.png';
 
 interface ChatMessage {
