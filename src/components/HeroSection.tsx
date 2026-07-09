@@ -264,14 +264,7 @@ const HeroSection = () => {
                 <MouthOverlay
                   box={box}
                   active={isSpeaking}
-                  debug={!!calibration}
-                />
-
-                {/* Calibration UI — only shows a small gear */}
-                <MouthCalibrator
-                  value={box}
-                  onChange={(next) => setCalibration(next)}
-                  onReset={() => setCalibration(null)}
+                  debug={false}
                 />
               </motion.div>
 
