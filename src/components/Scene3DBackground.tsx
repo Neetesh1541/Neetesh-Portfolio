@@ -1,122 +1,222 @@
-import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
-import { Code2, Braces, Terminal, Cpu, Binary, GitBranch, Database, Boxes } from 'lucide-react';
-import { useMemo } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Float, Environment, MeshDistortMaterial, Html } from '@react-three/drei';
+import { Suspense, useRef, useEffect, useState } from 'react';
+import { useReducedMotion } from 'framer-motion';
+import * as THREE from 'three';
 
 /**
- * Ambient 3D-looking background: floating rotating cubes + dev icons that
- * parallax with page scroll. Pointer-events off, low opacity, behind content.
+ * A stylized 3D laptop built from primitive meshes — no external GLB needed.
+ * Screen shows a "code editor" via HTML overlay for crispness.
  */
-const CUBE_FACES = [
-  { t: 'translateZ(40px)', bg: 'from-violet-500/25 to-fuchsia-500/10' },
-  { t: 'rotateY(180deg) translateZ(40px)', bg: 'from-cyan-500/25 to-sky-500/10' },
-  { t: 'rotateY(90deg) translateZ(40px)', bg: 'from-fuchsia-500/25 to-pink-500/10' },
-  { t: 'rotateY(-90deg) translateZ(40px)', bg: 'from-emerald-500/25 to-teal-500/10' },
-  { t: 'rotateX(90deg) translateZ(40px)', bg: 'from-indigo-500/25 to-violet-500/10' },
-  { t: 'rotateX(-90deg) translateZ(40px)', bg: 'from-sky-500/25 to-cyan-500/10' },
-];
+const Laptop = ({ scroll }: { scroll: React.MutableRefObject<number> }) => {
+  const group = useRef<THREE.Group>(null);
+  const lid = useRef<THREE.Group>(null);
 
-const Cube = ({ size = 80, className = '' }: { size?: number; className?: string }) => (
-  <div
-    className={`relative ${className}`}
-    style={{ width: size, height: size, transformStyle: 'preserve-3d' }}
-  >
-    {CUBE_FACES.map((f, i) => (
-      <div
-        key={i}
-        className={`absolute inset-0 bg-gradient-to-br ${f.bg} border border-white/20 backdrop-blur-[1px] rounded-md`}
-        style={{ transform: f.t }}
-      />
-    ))}
-  </div>
-);
-
-interface FloatItem {
-  id: number;
-  left: string;
-  top: string;
-  depth: number; // 0.2 (far) - 1.2 (near) parallax speed
-  size: number;
-  duration: number;
-  Icon?: typeof Code2;
-  isCube?: boolean;
-  color?: string;
-}
-
-const ITEMS: FloatItem[] = [
-  { id: 1, left: '6%', top: '8%', depth: 0.35, size: 90, duration: 22, isCube: true },
-  { id: 2, left: '82%', top: '14%', depth: 0.6, size: 56, duration: 14, Icon: Code2, color: 'text-violet-400/50' },
-  { id: 3, left: '90%', top: '55%', depth: 0.45, size: 70, duration: 26, isCube: true },
-  { id: 4, left: '3%', top: '65%', depth: 0.8, size: 60, duration: 18, Icon: Braces, color: 'text-cyan-400/50' },
-  { id: 5, left: '45%', top: '120%', depth: 0.5, size: 100, duration: 28, isCube: true },
-  { id: 6, left: '15%', top: '140%', depth: 0.7, size: 64, duration: 16, Icon: Terminal, color: 'text-emerald-400/50' },
-  { id: 7, left: '78%', top: '175%', depth: 0.4, size: 80, duration: 24, isCube: true },
-  { id: 8, left: '35%', top: '200%', depth: 0.9, size: 58, duration: 15, Icon: Cpu, color: 'text-fuchsia-400/50' },
-  { id: 9, left: '88%', top: '230%', depth: 0.55, size: 68, duration: 20, Icon: Binary, color: 'text-sky-400/50' },
-  { id: 10, left: '8%', top: '260%', depth: 0.5, size: 90, duration: 30, isCube: true },
-  { id: 11, left: '55%', top: '285%', depth: 0.75, size: 54, duration: 17, Icon: GitBranch, color: 'text-indigo-400/50' },
-  { id: 12, left: '20%', top: '320%', depth: 0.6, size: 72, duration: 25, isCube: true },
-  { id: 13, left: '75%', top: '345%', depth: 0.85, size: 60, duration: 19, Icon: Database, color: 'text-pink-400/50' },
-  { id: 14, left: '48%', top: '380%', depth: 0.5, size: 84, duration: 27, isCube: true },
-  { id: 15, left: '92%', top: '410%', depth: 0.7, size: 58, duration: 16, Icon: Boxes, color: 'text-violet-400/50' },
-];
-
-const FloatingItem = ({ item, scrollY }: { item: FloatItem; scrollY: ReturnType<typeof useScroll>['scrollY'] }) => {
-  // Parallax: deeper = slower. Each moves up/down as user scrolls.
-  const y = useTransform(scrollY, (v) => -v * item.depth);
+  useFrame((state) => {
+    const t = state.clock.getElapsedTime();
+    const s = scroll.current;
+    if (group.current) {
+      group.current.rotation.y = s * 2.2 + Math.sin(t * 0.5) * 0.15;
+      group.current.rotation.x = -0.15 + Math.sin(t * 0.4) * 0.05;
+      group.current.position.y = Math.sin(t * 0.8) * 0.15 - s * 1.5;
+    }
+    if (lid.current) {
+      // Open lid based on scroll from closed → open
+      lid.current.rotation.x = THREE.MathUtils.lerp(
+        -Math.PI / 2.1,
+        -Math.PI / 6,
+        Math.min(1, s * 3 + 0.6)
+      );
+    }
+  });
 
   return (
-    <motion.div
-      className="absolute"
-      style={{
-        left: item.left,
-        top: item.top,
-        y,
-        perspective: 800,
-      }}
-    >
-      <motion.div
-        style={{ transformStyle: 'preserve-3d' }}
-        animate={{
-          rotateX: [0, 360],
-          rotateY: [0, 360],
-          rotateZ: [0, 180],
-        }}
-        transition={{
-          duration: item.duration,
-          repeat: Infinity,
-          ease: 'linear',
-        }}
-      >
-        {item.isCube ? (
-          <Cube size={item.size} />
-        ) : item.Icon ? (
-          <item.Icon size={item.size} className={item.color} strokeWidth={1.25} />
-        ) : null}
-      </motion.div>
-    </motion.div>
+    <group ref={group} scale={1.1}>
+      {/* Base */}
+      <mesh position={[0, -0.05, 0]} castShadow receiveShadow>
+        <boxGeometry args={[2.4, 0.1, 1.6]} />
+        <meshStandardMaterial color="#1a1a2e" metalness={0.85} roughness={0.25} />
+      </mesh>
+      {/* Keyboard well */}
+      <mesh position={[0, 0.01, 0.05]}>
+        <boxGeometry args={[2.2, 0.02, 1.35]} />
+        <meshStandardMaterial color="#0f0f1c" metalness={0.6} roughness={0.5} />
+      </mesh>
+      {/* Trackpad */}
+      <mesh position={[0, 0.02, 0.55]}>
+        <boxGeometry args={[0.9, 0.005, 0.55]} />
+        <meshStandardMaterial color="#2a2a44" metalness={0.7} roughness={0.3} />
+      </mesh>
+
+      {/* Lid hinge group */}
+      <group ref={lid} position={[0, 0, -0.78]}>
+        {/* Lid back */}
+        <mesh position={[0, 0.75, 0]} castShadow>
+          <boxGeometry args={[2.4, 1.5, 0.08]} />
+          <meshStandardMaterial color="#161628" metalness={0.9} roughness={0.2} />
+        </mesh>
+        {/* Screen */}
+        <mesh position={[0, 0.75, 0.045]}>
+          <planeGeometry args={[2.2, 1.32]} />
+          <meshStandardMaterial
+            color="#0b0b18"
+            emissive="#5b21b6"
+            emissiveIntensity={0.35}
+          />
+        </mesh>
+        {/* Code overlay */}
+        <Html
+          transform
+          position={[0, 0.75, 0.05]}
+          distanceFactor={1.4}
+          style={{
+            width: '440px',
+            height: '260px',
+            background: 'linear-gradient(135deg, #0b0f1e 0%, #14082a 100%)',
+            padding: '14px 16px',
+            fontFamily: 'JetBrains Mono, monospace',
+            fontSize: '11px',
+            lineHeight: '1.55',
+            color: '#e2e8f0',
+            borderRadius: '4px',
+            overflow: 'hidden',
+            pointerEvents: 'none',
+            userSelect: 'none',
+          }}
+        >
+          <div style={{ color: '#64748b' }}>// portfolio.tsx</div>
+          <div>
+            <span style={{ color: '#c084fc' }}>import</span>{' '}
+            <span style={{ color: '#f472b6' }}>{'{ Dev }'}</span>{' '}
+            <span style={{ color: '#c084fc' }}>from</span>{' '}
+            <span style={{ color: '#4ade80' }}>'@neetesh/core'</span>;
+          </div>
+          <div style={{ marginTop: 6 }}>
+            <span style={{ color: '#c084fc' }}>const</span>{' '}
+            <span style={{ color: '#38bdf8' }}>me</span> ={' '}
+            <span style={{ color: '#c084fc' }}>new</span>{' '}
+            <span style={{ color: '#fbbf24' }}>Dev</span>({'{'}
+          </div>
+          <div style={{ paddingLeft: 14 }}>
+            name: <span style={{ color: '#4ade80' }}>'Neetesh'</span>,
+          </div>
+          <div style={{ paddingLeft: 14 }}>
+            stack: [<span style={{ color: '#4ade80' }}>'AI'</span>,{' '}
+            <span style={{ color: '#4ade80' }}>'React'</span>,{' '}
+            <span style={{ color: '#4ade80' }}>'Python'</span>],
+          </div>
+          <div style={{ paddingLeft: 14 }}>
+            passion: <span style={{ color: '#f472b6' }}>Infinity</span>,
+          </div>
+          <div>{'});'}</div>
+          <div style={{ marginTop: 6 }}>
+            <span style={{ color: '#38bdf8' }}>me</span>.
+            <span style={{ color: '#fbbf24' }}>build</span>(
+            <span style={{ color: '#4ade80' }}>'future'</span>);
+          </div>
+          <div style={{ marginTop: 10, color: '#22d3ee' }}>
+            <span style={{ color: '#64748b' }}>$</span> npm run dev
+            <span style={{ color: '#4ade80' }}> ✓ ready</span>
+          </div>
+        </Html>
+      </group>
+    </group>
   );
 };
 
+const FloatingCube = ({
+  position,
+  color,
+  scale = 0.35,
+  scroll,
+}: {
+  position: [number, number, number];
+  color: string;
+  scale?: number;
+  scroll: React.MutableRefObject<number>;
+}) => {
+  const ref = useRef<THREE.Mesh>(null);
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.getElapsedTime();
+    ref.current.rotation.x = t * 0.6;
+    ref.current.rotation.y = t * 0.4;
+    ref.current.position.y = position[1] + Math.sin(t + position[0]) * 0.3 - scroll.current * 1.2;
+  });
+  return (
+    <Float speed={2} rotationIntensity={0.6} floatIntensity={1.2}>
+      <mesh ref={ref} position={position} scale={scale}>
+        <icosahedronGeometry args={[1, 0]} />
+        <MeshDistortMaterial
+          color={color}
+          distort={0.35}
+          speed={2}
+          metalness={0.7}
+          roughness={0.15}
+        />
+      </mesh>
+    </Float>
+  );
+};
+
+const Scene = ({ scroll }: { scroll: React.MutableRefObject<number> }) => (
+  <>
+    <ambientLight intensity={0.4} />
+    <directionalLight position={[5, 5, 5]} intensity={1.1} color="#a78bfa" />
+    <directionalLight position={[-5, 3, -2]} intensity={0.8} color="#22d3ee" />
+    <pointLight position={[0, 2, 3]} intensity={0.6} color="#f472b6" />
+
+    <Laptop scroll={scroll} />
+
+    <FloatingCube position={[-3, 1.5, -1]} color="#8b5cf6" scroll={scroll} />
+    <FloatingCube position={[3.2, 1.8, -1.5]} color="#22d3ee" scale={0.28} scroll={scroll} />
+    <FloatingCube position={[-2.8, -1.5, 0.5]} color="#ec4899" scale={0.22} scroll={scroll} />
+    <FloatingCube position={[3, -1.2, 0]} color="#10b981" scale={0.3} scroll={scroll} />
+    <FloatingCube position={[0, 2.5, -2]} color="#f59e0b" scale={0.2} scroll={scroll} />
+
+    <Environment preset="city" />
+  </>
+);
+
 const Scene3DBackground = () => {
   const reduce = useReducedMotion();
-  const { scrollY } = useScroll();
-  const items = useMemo(() => ITEMS, []);
+  const scroll = useRef(0);
+  const [ready, setReady] = useState(false);
 
-  if (reduce) return null;
+  useEffect(() => {
+    // Delay mount to avoid competing with initial paint / loading screen
+    const t = setTimeout(() => setReady(true), 100);
+    const onScroll = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      scroll.current = max > 0 ? window.scrollY / max : 0;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, []);
+
+  if (reduce || !ready) return null;
 
   return (
     <div
       aria-hidden="true"
-      className="fixed inset-0 z-0 pointer-events-none overflow-hidden opacity-60"
-      style={{ perspective: '1400px' }}
+      className="fixed inset-0 z-0 pointer-events-none"
+      style={{ opacity: 0.55 }}
     >
-      {/* soft radial to keep text-legibility strong */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,hsl(var(--background)/0.55)_55%,hsl(var(--background)/0.85)_100%)]" />
-      <div className="relative w-full h-full">
-        {items.map((it) => (
-          <FloatingItem key={it.id} item={it} scrollY={scrollY} />
-        ))}
-      </div>
+      {/* Legibility gradient so text always stays readable */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,hsl(var(--background)/0.55)_60%,hsl(var(--background)/0.9)_100%)] z-10" />
+      <Canvas
+        camera={{ position: [0, 0.4, 5], fov: 45 }}
+        dpr={[1, 1.5]}
+        gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+      >
+        <Suspense fallback={null}>
+          <Scene scroll={scroll} />
+        </Suspense>
+      </Canvas>
     </div>
   );
 };
