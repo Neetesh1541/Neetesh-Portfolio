@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, X, Send, Mic, MicOff, Volume2, VolumeX, Bot, User, Loader2, AlertCircle } from 'lucide-react';
+import { X, Send, Mic, MicOff, Volume2, VolumeX, Bot, User, Loader2, AlertCircle, Sparkles } from 'lucide-react';
 import profilePhoto from '@/assets/profile-face.png';
 
 interface ChatMessage {
@@ -428,8 +428,9 @@ const AIChatbot = () => {
               <X size={22} />
             </motion.div>
           ) : (
-            <motion.div key="msg" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }}>
-              <MessageCircle size={22} />
+            <motion.div key="msg" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} className="relative flex items-center justify-center">
+              <Bot size={24} strokeWidth={2.2} />
+              <Sparkles size={10} className="absolute -top-1 -right-1 text-yellow-200 drop-shadow-[0_0_4px_rgba(255,255,150,0.9)]" />
             </motion.div>
           )}
         </AnimatePresence>

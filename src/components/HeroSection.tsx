@@ -5,11 +5,9 @@ import { useEffect, useRef, useState } from 'react';
 import profilePhoto from '@/assets/profile-photo-new.png';
 import { useVoiceGuideContext } from '@/components/VoiceGuideProvider';
 import MouthOverlay from '@/components/MouthOverlay';
-import MouthCalibrator from '@/components/MouthCalibrator';
 import {
   DEFAULT_MOUTH,
   detectMouth,
-  loadCalibration,
   loadDetected,
   saveDetected,
   type MouthBox,
@@ -22,13 +20,9 @@ const HeroSection = () => {
   const [detectedBox, setDetectedBox] = useState<MouthBox | null>(() =>
     loadDetected(profilePhoto)
   );
-  const [calibration, setCalibration] = useState<MouthBox | null>(() =>
-    loadCalibration()
-  );
 
-
-  // Resolution priority: manual calibration → face-landmark detection → default.
-  const box: MouthBox = calibration ?? detectedBox ?? DEFAULT_MOUTH;
+  // Resolution priority: face-landmark detection → default.
+  const box: MouthBox = detectedBox ?? DEFAULT_MOUTH;
 
   // Run MediaPipe detection once per profile photo, cache the result.
   useEffect(() => {
@@ -270,14 +264,7 @@ const HeroSection = () => {
                 <MouthOverlay
                   box={box}
                   active={isSpeaking}
-                  debug={!!calibration}
-                />
-
-                {/* Calibration UI — only shows a small gear */}
-                <MouthCalibrator
-                  value={box}
-                  onChange={(next) => setCalibration(next)}
-                  onReset={() => setCalibration(null)}
+                  debug={false}
                 />
               </motion.div>
 
