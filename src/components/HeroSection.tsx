@@ -20,13 +20,9 @@ const HeroSection = () => {
   const [detectedBox, setDetectedBox] = useState<MouthBox | null>(() =>
     loadDetected(profilePhoto)
   );
-  const [calibration, setCalibration] = useState<MouthBox | null>(() =>
-    loadCalibration()
-  );
 
-
-  // Resolution priority: manual calibration → face-landmark detection → default.
-  const box: MouthBox = calibration ?? detectedBox ?? DEFAULT_MOUTH;
+  // Resolution priority: face-landmark detection → default.
+  const box: MouthBox = detectedBox ?? DEFAULT_MOUTH;
 
   // Run MediaPipe detection once per profile photo, cache the result.
   useEffect(() => {
