@@ -49,6 +49,7 @@ const IndexContent = () => {
       <LoadingScreen />
       <div className="min-h-screen relative">
         <CodeBackground />
+        <Scene3DBackground />
         <ParticleBackground />
         <Navbar />
         <main className="relative z-10">
