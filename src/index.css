@@ -222,6 +222,10 @@
 
   html {
     scroll-behavior: smooth;
+    /* Modern scroll-snap for parallax-like section flow (desktop only). */
+    @media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+      scroll-snap-type: y proximity;
+    }
   }
 
   body {
@@ -229,10 +233,34 @@
     font-family: 'Inter', sans-serif;
     background: var(--gradient-bg);
     min-height: 100vh;
+    /* Prevent horizontal overflow on mobile from decorative absolute elements */
+    overflow-x: hidden;
+  }
+
+  section {
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Space Grotesk', sans-serif;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Nicer, thin scrollbar */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: hsl(var(--background)); }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, hsl(var(--primary) / 0.6), hsl(var(--secondary) / 0.6));
+    border-radius: 999px;
+    border: 2px solid hsl(var(--background));
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, hsl(var(--primary)), hsl(var(--secondary)));
   }
 }
 
