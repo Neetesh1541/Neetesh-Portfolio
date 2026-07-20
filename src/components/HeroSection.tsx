@@ -257,7 +257,7 @@ const HeroSection = () => {
                   src={profilePhoto}
                   alt="Neetesh Kumar"
                   crossOrigin="anonymous"
-                  className="relative w-64 h-64 xs:w-72 xs:h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[26rem] lg:h-[26rem] object-contain drop-shadow-[0_20px_40px_rgba(139,92,246,0.35)]"
+                  className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[26rem] lg:h-[26rem] object-contain drop-shadow-[0_20px_40px_rgba(139,92,246,0.35)]"
                 />
 
                 {/* Amplitude-driven lip-sync overlay */}
