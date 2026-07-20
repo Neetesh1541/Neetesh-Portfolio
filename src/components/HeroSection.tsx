@@ -48,7 +48,7 @@ const HeroSection = () => {
 
   return (
 
-    <section className="min-h-screen flex items-center justify-center relative overflow-hidden pt-20 px-4">
+    <section className="min-h-[100svh] flex items-center justify-center relative overflow-hidden pt-24 pb-16 px-4 sm:px-6">
       {/* Minimal background shapes - hidden on mobile */}
       <div className="absolute inset-0 pointer-events-none hidden md:block">
         <motion.div
@@ -63,8 +63,8 @@ const HeroSection = () => {
         />
       </div>
 
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
+      <div className="container mx-auto px-2 sm:px-4">
+        <div className="flex flex-col-reverse lg:flex-row items-center justify-between gap-8 sm:gap-12">
           {/* Text Content */}
           <motion.div
             className="flex-1 text-center lg:text-left"
@@ -94,7 +94,7 @@ const HeroSection = () => {
             </motion.div>
 
             <motion.h1 
-              className="text-4xl md:text-5xl lg:text-7xl font-display font-bold mb-6 leading-tight"
+              className="text-[2.25rem] leading-[1.08] sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold mb-4 sm:mb-6"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.8 }}
@@ -111,7 +111,7 @@ const HeroSection = () => {
             </motion.h1>
 
             <motion.div 
-              className="text-xl md:text-2xl lg:text-3xl text-muted-foreground mb-6 h-20 md:h-16"
+              className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-muted-foreground mb-6 min-h-[5rem] md:min-h-[4rem]"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.7 }}
@@ -257,7 +257,7 @@ const HeroSection = () => {
                   src={profilePhoto}
                   alt="Neetesh Kumar"
                   crossOrigin="anonymous"
-                  className="relative w-56 h-56 sm:w-72 sm:h-72 md:w-80 md:h-80 lg:w-[26rem] lg:h-[26rem] object-contain drop-shadow-[0_20px_40px_rgba(139,92,246,0.35)]"
+                  className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[26rem] lg:h-[26rem] object-contain drop-shadow-[0_20px_40px_rgba(139,92,246,0.35)]"
                 />
 
                 {/* Amplitude-driven lip-sync overlay */}
