@@ -111,7 +111,7 @@ const HeroSection = () => {
             </motion.h1>
 
             <motion.div 
-              className="text-xl md:text-2xl lg:text-3xl text-muted-foreground mb-6 h-20 md:h-16"
+              className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-muted-foreground mb-6 min-h-[5rem] md:min-h-[4rem]"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.7 }}
