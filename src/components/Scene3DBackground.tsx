@@ -264,10 +264,11 @@ const Scene3DBackground = () => {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,hsl(var(--background)/0.55)_60%,hsl(var(--background)/0.9)_100%)] z-10" />
       <Canvas
         camera={{ position: [0, 0.4, 5], fov: 45 }}
-        dpr={[1, 1.5]}
+        dpr={[1, isMobile ? 1.25 : 1.5]}
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
       >
         <Suspense fallback={null}>
+          <SmoothScroll scroll={scroll} />
           <Scene scroll={scroll} />
         </Suspense>
       </Canvas>
