@@ -48,7 +48,7 @@ const HeroSection = () => {
 
   return (
 
-    <section className="min-h-screen flex items-center justify-center relative overflow-hidden pt-20 px-4">
+    <section className="min-h-[100svh] flex items-center justify-center relative overflow-hidden pt-24 pb-16 px-4 sm:px-6">
       {/* Minimal background shapes - hidden on mobile */}
       <div className="absolute inset-0 pointer-events-none hidden md:block">
         <motion.div
