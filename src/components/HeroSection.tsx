@@ -63,8 +63,8 @@ const HeroSection = () => {
         />
       </div>
 
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
+      <div className="container mx-auto px-2 sm:px-4">
+        <div className="flex flex-col-reverse lg:flex-row items-center justify-between gap-8 sm:gap-12">
           {/* Text Content */}
           <motion.div
             className="flex-1 text-center lg:text-left"
