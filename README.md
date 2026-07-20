@@ -3,7 +3,7 @@
 🚀 **Full-Stack Developer | AI/ML Enthusiast | Startup Builder | Community Leader**
 
 I’m a Computer Science Engineering student (2023–2027) at **Dr. A.P.J. Abdul Kalam Technical University**, passionate about building impactful products, scalable systems, and tech-driven solutions.  
-I specialize in **Full Stack Development**, **AI/ML**, and **startup product design**.
+I specialize in **Full Stack Development**, **AI/ML**, and **startup product design**... 
 
 ---
 
