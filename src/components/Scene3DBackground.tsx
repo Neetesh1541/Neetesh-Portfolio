@@ -126,8 +126,10 @@ const measureLayout = (): SceneLayout & { maskStrength: number; opacity: number 
   const spread = stacked ? 0.65 : clamp(0.8 + (vw - 1024) / 2600, 0.8, 1.15);
   const maskStrength = clamp(0.45 + coverage * 1.1, 0.5, 0.95);
   const opacity = stacked ? 0.26 : clamp(0.4 + (vw - 1024) / 4000, 0.4, 0.58);
+  // On side-by-side layouts the copy sits left, so push the scene toward the free side.
+  const sceneX = stacked ? 0 : 0.9 + coverage * 2.2;
 
-  return { cameraZ, fov, sceneY, scale, spread, isCompact: stacked, maskStrength, opacity };
+  return { cameraZ, fov, sceneY, sceneX, scale, spread, isCompact: stacked, maskStrength, opacity };
 };
 
 /** Conservative device-pixel-ratio cap based on device capability hints. */
@@ -153,6 +155,7 @@ const Scene3DBackground = () => {
     fov: 46,
     sceneY: -0.4,
     scale: 0.9,
+    sceneX: 1.2,
     spread: 1,
     isCompact: false,
     maskStrength: 0.6,
