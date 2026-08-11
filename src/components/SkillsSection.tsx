@@ -22,6 +22,7 @@ import skillFrontend from '@/assets/skill-frontend.jpg';
 import skillBackend from '@/assets/skill-backend.jpg';
 import skillAi from '@/assets/skill-ai.jpg';
 import skillTools from '@/assets/skill-tools.jpg';
+import skillData from '@/assets/skill-data.jpg';
 
 const skillCategories = [
   {
@@ -49,7 +50,7 @@ const skillCategories = [
     title: 'Data Science',
     icon: BarChart3,
     color: 'from-pink-400 to-rose-500',
-    image: skillAi,
+    image: skillData,
     skills: ['Python', 'Pandas', 'NumPy', 'Scikit-learn', 'Matplotlib', 'Seaborn', 'Jupyter', 'Statistics', 'EDA', 'Data Visualization', 'SQL', 'Power BI'],
   },
   {
