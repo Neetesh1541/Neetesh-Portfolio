@@ -67,6 +67,7 @@ const HeroSection = () => {
         <div className="flex flex-col-reverse lg:flex-row items-center justify-between gap-8 sm:gap-12">
           {/* Text Content */}
           <motion.div
+            id="hero-copy"
             className="flex-1 text-center lg:text-left"
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
