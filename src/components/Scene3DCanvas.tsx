@@ -36,6 +36,7 @@ export interface SceneLayout {
   cameraZ: number;
   fov: number;
   sceneY: number;
+  sceneX: number;
   scale: number;
   spread: number;
   isCompact: boolean;
@@ -243,6 +244,7 @@ const Scene = ({
   useFrame(() => {
     if (!group.current) return;
     group.current.position.y = THREE.MathUtils.lerp(group.current.position.y, layout.sceneY, 0.08);
+    group.current.position.x = THREE.MathUtils.lerp(group.current.position.x, layout.sceneX, 0.08);
     const s = THREE.MathUtils.lerp(group.current.scale.x, layout.scale, 0.08);
     group.current.scale.setScalar(s);
   });
@@ -269,7 +271,7 @@ const Scene = ({
         color={theme.lights.rim}
       />
 
-      <group ref={group} position={[0, layout.sceneY, 0]} scale={layout.scale}>
+      <group ref={group} position={[layout.sceneX, layout.sceneY, 0]} scale={layout.scale}>
         <Laptop scroll={scroll} parallax={parallax} theme={theme} />
 
         <FloatingCube position={[-3 * spread, 1.5, -1]} color={c[0]} scroll={scroll} parallax={parallax} depth={1.2} theme={theme} />
