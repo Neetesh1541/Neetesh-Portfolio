@@ -25,7 +25,7 @@ const projects = [
   },
   {
     title: 'Mummy Meals',
-    description: 'Food ordering platform connecting home chefs with customers, featuring 5th position in Startup Hackathon.',
+    description: 'Food ordering platform connecting home chefs with customers, featuring 1st position in Startup Hackathon.',
     techStack: ['React', 'Node.js', 'Database', 'Payment Integration'],
     liveUrl: 'https://mummy-meals-connect.vercel.app/',
     image: projectMummyMeals,

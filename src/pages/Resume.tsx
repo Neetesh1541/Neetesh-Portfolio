@@ -232,7 +232,7 @@ const Resume = () => {
                 {
                   name: "Mummy Meals - Food Platform",
                   tech: "React, Node.js, MongoDB, Stripe",
-                  desc: "Comprehensive food ordering platform with secure payment processing and real-time order tracking. 5th position in Startup Hackathon (100+ teams).",
+                  desc: "Comprehensive food ordering platform with secure payment processing and real-time order tracking. 1st position in Startup Hackathon (100+ teams).",
                   color: "from-emerald-500 to-teal-600"
                 },
                 {
@@ -345,7 +345,7 @@ const Resume = () => {
             </div>
             <div className="grid md:grid-cols-2 gap-3">
               {[
-                { text: "5th Position at Startup Hackathon (100+ teams)", icon: "🏆", color: "from-yellow-400 to-amber-500" },
+                { text: " 1st Position at Startup Hackathon (100+ teams)", icon: "🏆", color: "from-yellow-400 to-amber-500" },
                 { text: "Built HackLoop Community to 2,500+ developers", icon: "🚀", color: "from-violet-400 to-purple-500" },
                 { text: "Organized 50+ tech events & hackathons", icon: "📚", color: "from-blue-400 to-cyan-500" },
                 { text: "Mentored 500+ students in web dev & AI/ML", icon: "👨‍🏫", color: "from-emerald-400 to-teal-500" },

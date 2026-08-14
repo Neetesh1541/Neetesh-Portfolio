@@ -1,9 +1,9 @@
-# 👋 Hi, I'm Neetesh Kumar..
+# 👋 Hi, I'm Neetesh Kumar...
 
 🚀 **Full-Stack Developer | AI/ML Enthusiast | Startup Builder | Community Leader**
 
 I’m a Computer Science Engineering student (2023–2027) at **Dr. A.P.J. Abdul Kalam Technical University**, passionate about building impactful products, scalable systems, and tech-driven solutions.  
-I specialize in **Full Stack Development**, **AI/ML**, and **startup product design**.
+I specialize in **Full Stack Development**, **AI/ML**, and **startup product design**... 
 
 ---
 
@@ -14,7 +14,7 @@ I specialize in **Full Stack Development**, **AI/ML**, and **startup product des
 - 🤖 AI/ML & Data Science Enthusiast
 - 🧠 Startup & Product Builder
 - 🌐 Founder of **Hackloop Community**
-- 🏆 5th Position – Startup Hackathon (**Mummy Meals**)
+- 🏆 1st Position – Startup Hackathon (**Mummy Meals**)
 - 🧑‍💼 Member of **GDG Gurgaon**, **GDG Noida**
 - 🎓 Microsoft Learn Student Ambassador (MLSA)
 - 🌱 Always learning & building
