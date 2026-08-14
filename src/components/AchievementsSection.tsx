@@ -6,7 +6,7 @@ import { Trophy, Users, Award, Star, Rocket, Globe, TrendingUp } from 'lucide-re
 const achievements = [
   {
     icon: Trophy,
-    title: '5th Position',
+    title: '1st Position',
     subtitle: 'Startup Hackathon',
     description: 'Mummy Meals project recognized for innovation',
     color: 'text-yellow-400',
