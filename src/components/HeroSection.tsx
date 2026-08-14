@@ -252,18 +252,38 @@ const HeroSection = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
           >
             <div className="relative">
-              {/* Soft radial glow behind the photo (no circle frame) */}
+              {/* Layered aurora glow behind the photo (no hard circle frame) */}
               <motion.div 
                 className="absolute inset-0 blur-3xl -z-10"
                 style={{
-                  background: 'radial-gradient(circle at 50% 60%, hsl(263 70% 50% / 0.45), hsl(199 89% 48% / 0.25) 40%, transparent 70%)',
+                  background:
+                    'radial-gradient(circle at 50% 58%, hsl(var(--secondary) / 0.5), hsl(var(--primary) / 0.28) 42%, transparent 72%)',
                 }}
                 animate={{ 
-                  opacity: [0.5, 0.8, 0.5],
-                  scale: [1, 1.08, 1],
+                  opacity: [0.5, 0.85, 0.5],
+                  scale: [1, 1.1, 1],
                 }}
                 transition={{ duration: 4, repeat: Infinity }}
               />
+
+              {/* Neural orbit rings — subtle, AI/ML flavoured */}
+              {!reduceMotion && (
+                <>
+                  <motion.div
+                    className="absolute left-1/2 top-1/2 -z-10 w-[19rem] h-[19rem] sm:w-[23rem] sm:h-[23rem] lg:w-[32rem] lg:h-[32rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-primary/25"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
+                  />
+                  <motion.div
+                    className="absolute left-1/2 top-1/2 -z-10 w-[15rem] h-[15rem] sm:w-[18rem] sm:h-[18rem] lg:w-[25rem] lg:h-[25rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-secondary/20"
+                    animate={{ rotate: -360 }}
+                    transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}
+                  >
+                    <span className="absolute -top-1 left-1/2 w-2 h-2 -translate-x-1/2 rounded-full bg-primary shadow-[0_0_12px_hsl(var(--primary))]" />
+                    <span className="absolute -bottom-1 left-1/2 w-1.5 h-1.5 -translate-x-1/2 rounded-full bg-secondary shadow-[0_0_12px_hsl(var(--secondary))]" />
+                  </motion.div>
+                </>
+              )}
 
               {/* Image with subtle speaking motion (disabled when reduced-motion) */}
               <motion.div
@@ -286,9 +306,9 @@ const HeroSection = () => {
                 <motion.img
                   ref={imgRef}
                   src={profilePhoto}
-                  alt="Neetesh Kumar"
+                  alt="Neetesh Kumar — AI/ML and Data Science engineer"
                   crossOrigin="anonymous"
-                  className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[26rem] lg:h-[26rem] object-contain drop-shadow-[0_20px_40px_rgba(139,92,246,0.35)]"
+                  className="relative w-[19rem] h-[19rem] sm:w-[24rem] sm:h-[24rem] md:w-[28rem] md:h-[28rem] lg:w-[34rem] lg:h-[34rem] object-contain drop-shadow-[0_30px_60px_hsl(var(--secondary)/0.35)]"
                 />
 
                 {/* Amplitude-driven lip-sync overlay */}
@@ -298,6 +318,23 @@ const HeroSection = () => {
                   debug={false}
                 />
               </motion.div>
+
+              {/* Floating metric card */}
+              <motion.div
+                className="absolute top-6 -left-2 sm:left-0 glass-card rounded-xl px-3 py-2 z-10 hidden sm:block"
+                initial={{ opacity: 0, y: -12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.4 }}
+              >
+                <div className="flex items-center gap-2">
+                  <BrainCircuit size={16} className="text-primary" />
+                  <div className="leading-tight">
+                    <p className="text-xs font-semibold">Model Accuracy</p>
+                    <p className="text-[11px] text-muted-foreground font-mono">96.4% · F1 0.94</p>
+                  </div>
+                </div>
+              </motion.div>
+
 
 
 
