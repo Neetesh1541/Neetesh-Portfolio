@@ -88,11 +88,15 @@ const HeroSection = () => {
               <motion.span
                 animate={{ rotate: [0, 20, 0] }}
                 transition={{ duration: 2, repeat: Infinity }}
+                className="text-primary"
               >
-                👋
+                <BrainCircuit size={16} />
               </motion.span>
-              <span className="text-primary text-sm font-medium relative z-10">Welcome to my portfolio</span>
+              <span className="text-primary text-sm font-medium relative z-10 tracking-wide">
+                AI / ML &amp; Data Science Engineer
+              </span>
             </motion.div>
+
 
             <motion.h1 
               className="text-[2.25rem] leading-[1.08] sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold mb-4 sm:mb-6"
@@ -119,13 +123,15 @@ const HeroSection = () => {
             >
               <TypeAnimation
                 sequence={[
-                  'Building Intelligent Products That Shape The Future',
+                  'Turning Data Into Intelligent Decisions',
                   3000,
-                  'Full Stack Developer',
+                  'AI / ML Engineer',
                   2000,
-                  'AI/ML Enthusiast',
+                  'Data Scientist',
                   2000,
-                  'Tech Innovator',
+                  'Deep Learning & NLP',
+                  2000,
+                  'MLOps & Data Engineering',
                   2000,
                   'Founder of HackLoop Community',
                   2000,
@@ -138,14 +144,38 @@ const HeroSection = () => {
             </motion.div>
 
             <motion.p 
-              className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto lg:mx-0"
+              className="text-muted-foreground text-base sm:text-lg mb-6 max-w-xl mx-auto lg:mx-0"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.9 }}
             >
-              Passionate about creating scalable digital products and leading tech communities. 
-              Transforming ideas into impactful solutions.
+              I build and ship machine learning systems end to end — from data pipelines and
+              feature engineering to model training, evaluation and production deployment.
             </motion.p>
+
+            {/* Specialization chips */}
+            <motion.div
+              className="flex flex-wrap gap-2 justify-center lg:justify-start mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1 }}
+            >
+              {[
+                { icon: BrainCircuit, label: 'Deep Learning' },
+                { icon: LineChart, label: 'Predictive Analytics' },
+                { icon: Database, label: 'Data Engineering' },
+                { icon: Cpu, label: 'LLMs & RAG' },
+              ].map(({ icon: Icon, label }) => (
+                <span
+                  key={label}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full glass-card text-xs sm:text-sm text-muted-foreground"
+                >
+                  <Icon size={14} className="text-primary" />
+                  {label}
+                </span>
+              ))}
+            </motion.div>
+
 
             {/* CTA Buttons */}
             <motion.div 
