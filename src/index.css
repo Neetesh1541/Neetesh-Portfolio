@@ -265,6 +265,44 @@
 }
 
 @layer components {
+  /* Premium layered site backdrop: aurora mesh + data grid + fine noise */
+  .premium-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .premium-bg::before {
+    content: '';
+    position: absolute;
+    inset: -20%;
+    background:
+      radial-gradient(45% 40% at 15% 12%, hsl(var(--primary) / 0.22), transparent 65%),
+      radial-gradient(40% 38% at 85% 22%, hsl(var(--secondary) / 0.20), transparent 65%),
+      radial-gradient(50% 45% at 50% 95%, hsl(var(--secondary) / 0.16), transparent 70%);
+    filter: blur(40px);
+    animation: aurora-drift 24s ease-in-out infinite alternate;
+  }
+
+  .premium-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(hsl(var(--primary) / 0.16) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--secondary) / 0.16) 1px, transparent 1px);
+    background-size: 72px 72px;
+    opacity: 0.35;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 0%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 0%, transparent 80%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .premium-bg::before { animation: none; }
+  }
+
   .glass-card {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
@@ -470,7 +508,14 @@
   }
 }
 
+@keyframes aurora-drift {
+  0% { transform: translate3d(-2%, -1%, 0) scale(1); }
+  50% { transform: translate3d(2%, 2%, 0) scale(1.06); }
+  100% { transform: translate3d(-1%, 1%, 0) scale(1.02); }
+}
+
 .animate-gradient {
   background-size: 200% 200%;
   animation: gradient-shift 8s ease infinite;
 }
+
