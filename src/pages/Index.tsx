@@ -22,14 +22,15 @@ import AIChatbot from '@/components/AIChatbot';
 import { VoiceGuideProvider, useVoiceGuideContext } from '@/components/VoiceGuideProvider';
 
 const SECTION_MESSAGES = {
-  about: "This is my About section. Here you can learn more about my background and what drives me as a developer.",
-  skills: "Here are my technical skills. I specialize in frontend, backend, and AI technologies.",
-  projects: "Check out my featured projects. Each one represents a unique challenge I've tackled.",
-  blog: "I also write about technology and share my learnings in my blog.",
+  about: "This is my About section. Here you can learn more about my background as an AI and Data Science engineer.",
+  skills: "Here are my technical skills. I specialize in machine learning, deep learning, data science and the engineering around them.",
+  projects: "Check out my featured projects. Each one solves a real problem with data and models.",
+  blog: "I also write about AI, machine learning and data science, and share my learnings in my blog.",
   achievements: "These are some of my proudest achievements and milestones.",
   experience: "Here's my professional journey and work experience.",
-  contact: "Want to work together? Feel free to reach out through the contact form.",
+  contact: "Want to build something with data and AI? Feel free to reach out through the contact form.",
 };
+
 
 const IndexContent = () => {
   const { isEnabled, isSpeaking, isGlowing, toggleVoice, playGreeting } = useVoiceGuideContext();
@@ -48,6 +49,7 @@ const IndexContent = () => {
     <>
       <LoadingScreen />
       <div className="min-h-screen relative">
+        <div className="premium-bg" aria-hidden="true" />
         <CodeBackground />
         <Scene3DBackground />
         <ParticleBackground />
