@@ -3,14 +3,15 @@ import { useEffect, useState, useRef } from 'react';
 import profilePhoto from '@/assets/profile-face.png';
 
 const BOOT_LINES = [
-  'booting neural core...',
-  'loading design system...',
-  'compiling experiences...',
-  'warming up GPU shaders...',
-  'syncing portfolio data...',
-  'calibrating aesthetics...',
+  'initializing neural network...',
+  'loading training data...',
+  'normalizing feature vectors...',
+  'fitting gradient descent...',
+  'evaluating model accuracy...',
+  'deploying inference pipeline...',
   'ready.',
 ];
+
 
 const LoadingScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -218,10 +219,11 @@ const LoadingScreen = () => {
               <motion.img
                 src={profilePhoto}
                 alt="Neetesh Kumar"
-                className="relative w-44 h-44 md:w-56 md:h-56 object-contain drop-shadow-[0_10px_40px_rgba(139,92,246,0.6)]"
+                className="relative w-48 h-48 md:w-60 md:h-60 object-contain drop-shadow-[0_10px_40px_rgba(139,92,246,0.6)]"
                 animate={{ y: [0, -6, 0] }}
                 transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
               />
+
             </motion.div>
 
             {/* Name */}
@@ -236,12 +238,13 @@ const LoadingScreen = () => {
               </h1>
               <motion.p
                 initial={{ opacity: 0, letterSpacing: '0.1em' }}
-                animate={{ opacity: 1, letterSpacing: '0.35em' }}
+                animate={{ opacity: 1, letterSpacing: '0.3em' }}
                 transition={{ delay: 0.8, duration: 1 }}
-                className="mt-2 text-xs md:text-sm text-cyan-200/80 uppercase"
+                className="mt-2 text-[10px] md:text-sm text-cyan-200/80 uppercase"
               >
-                AI · Full Stack · Design
+                AI / ML · Data Science
               </motion.p>
+
             </motion.div>
 
             {/* Progress bar */}
