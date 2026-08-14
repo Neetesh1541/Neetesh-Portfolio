@@ -14,7 +14,7 @@ I specialize in **Full Stack Development**, **AI/ML**, and **startup product des
 - 🤖 AI/ML & Data Science Enthusiast
 - 🧠 Startup & Product Builder
 - 🌐 Founder of **Hackloop Community**
-- 🏆 5th Position – Startup Hackathon (**Mummy Meals**)
+- 🏆 1st Position – Startup Hackathon (**Mummy Meals**)
 - 🧑‍💼 Member of **GDG Gurgaon**, **GDG Noida**
 - 🎓 Microsoft Learn Student Ambassador (MLSA)
 - 🌱 Always learning & building
