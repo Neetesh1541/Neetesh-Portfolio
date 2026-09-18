@@ -1,4 +1,4 @@
-# 👋 Hi, I'm Neetesh Kumar...
+# 👋 Hi, I'm Neetesh Kumar..
 
 🚀 **Full-Stack Developer | AI/ML Enthusiast | Startup Builder | Community Leader**
 
